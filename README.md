@@ -41,7 +41,6 @@ PRN222/
 |   |-- EduChatbot.ProductGroup/     # Du an 3: ProductGroup + SignalR + Worker
 |   |-- AiService/                   # Ban copy rieng cho ProductGroup
 |   `-- RblService/                  # Ban copy rieng cho ProductGroup
-|-- scripts/                     # Script don port dev
 |-- RUN_VISUAL_STUDIO_2022.md
 `-- README.md
 ```
@@ -100,13 +99,6 @@ Moi ban web se tu khoi dong `AiService` trong cung folder cua no o `http://127.0
 - ProductGroup dashboard: `http://localhost:5102/Dashboard`
 - AI health check: `http://127.0.0.1:8000`
 - RBL dashboard: `http://127.0.0.1:8010`
-
-## Don port khi bi ket
-
-```powershell
-cd D:\Project\PRN222
-powershell -ExecutionPolicy Bypass -File .\scripts\Stop-EduChatbotDev.ps1
-```
 
 ## Ghi chu GitHub
 

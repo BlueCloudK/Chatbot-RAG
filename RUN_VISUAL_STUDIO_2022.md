@@ -86,13 +86,3 @@ trong `01_MVC\EduChatbot.Web\appsettings.Development.json`.
 
 Neu upload/chat loi, xem Output window cua Visual Studio. Log cua Python AI service se hien voi prefix `[AiService]`.
 Neu benchmark loi, chay rieng `RblService` va xem terminal/output cua project do.
-
-## Don port khi Visual Studio bi ket
-
-Thong thuong khi dung web, `AiService` se tu tat theo `EduChatbot.Web`. Neu Visual Studio hoac Windows van giu port tu lan chay cu, chay lenh nay tai thu muc `D:\Project\PRN222`:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\Stop-EduChatbotDev.ps1
-```
-
-Script chi dung de don cac port dev cua du an: `5099` cho MVC, `5101` cho Razor Pages, `5102` cho ProductGroup, `8000` cho AI, va `8010` cho RBL.
