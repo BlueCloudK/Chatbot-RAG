@@ -44,7 +44,7 @@ namespace EduChatbot.Web.Services
             var aiServiceDir = ResolveAiServiceDirectory();
             if (aiServiceDir == null)
             {
-                _logger.LogError("Cannot find AiService directory. Expected it next to EduChatbot.Web in the solution root.");
+                _logger.LogError("Cannot find AiService directory. Expected it in the repository root.");
                 return;
             }
 
@@ -190,8 +190,11 @@ namespace EduChatbot.Web.Services
             var candidates = new[]
             {
                 Path.Combine(_environment.ContentRootPath, "..", "AiService"),
+                Path.Combine(_environment.ContentRootPath, "..", "..", "AiService"),
                 Path.Combine(Directory.GetCurrentDirectory(), "AiService"),
-                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "AiService")
+                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "AiService"),
+                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "AiService"),
+                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "AiService")
             };
 
             return candidates

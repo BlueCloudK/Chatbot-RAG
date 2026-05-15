@@ -11,11 +11,11 @@ namespace EduChatbot.Web.Models
 
         [Required]
         [MaxLength(255)]
-        public string FileName { get; set; }
+        public string FileName { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(500)]
-        public string FilePath { get; set; }
+        public string FilePath { get; set; } = string.Empty;
 
         public int SubjectId { get; set; }
         

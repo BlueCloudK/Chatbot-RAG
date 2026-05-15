@@ -26,9 +26,12 @@ Ca 3 ban deu dung chung `AiService` de upload, chunk, embed va chat voi tai lieu
 
 ```text
 PRN222/
-|-- EduChatbot.Web/              # Du an 1: MVC
-|-- EduChatbot.RazorPages/       # Du an 2: Razor Pages
-|-- EduChatbot.ProductGroup/     # Du an 3: ProductGroup + SignalR + Worker
+|-- 01_MVC/
+|   `-- EduChatbot.Web/              # Du an 1: MVC
+|-- 02_RazorPages/
+|   `-- EduChatbot.RazorPages/       # Du an 2: Razor Pages
+|-- 03_ProductGroup/
+|   `-- EduChatbot.ProductGroup/     # Du an 3: ProductGroup + SignalR + Worker
 |-- AiService/                   # Python FastAPI RAG service, port 8000
 |-- RblService/                  # Python FastAPI RBL/benchmark, port 8010
 |-- scripts/                     # Script don port dev
@@ -105,6 +108,6 @@ Repo da co `.gitignore` de khong day cac thu muc build/cache/local data nhu `.vs
 
 Moi du an web co README rieng:
 
-- `EduChatbot.Web/README.md`
-- `EduChatbot.RazorPages/README.md`
-- `EduChatbot.ProductGroup/README.md`
+- `01_MVC/EduChatbot.Web/README.md`
+- `02_RazorPages/EduChatbot.RazorPages/README.md`
+- `03_ProductGroup/EduChatbot.ProductGroup/README.md`

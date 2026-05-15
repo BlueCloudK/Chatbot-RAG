@@ -24,16 +24,16 @@ Ban `EduChatbot.Group.sln` demo them cac phan sau:
 
 ## Cau truc can quan tam
 
-- `EduChatbot.Web`: ASP.NET Core MVC web app. Day la startup project cua `EduChatbot.MVC.sln`.
-- `EduChatbot.RazorPages`: ASP.NET Core Razor Pages project rieng, co quan ly mon, upload/index va chat.
-- `EduChatbot.ProductGroup`: ASP.NET Core Razor Pages product/group app, co them dashboard van hanh, SignalR realtime va Worker Service.
+- `01_MVC/EduChatbot.Web`: ASP.NET Core MVC web app. Day la startup project cua `EduChatbot.MVC.sln`.
+- `02_RazorPages/EduChatbot.RazorPages`: ASP.NET Core Razor Pages project rieng, co quan ly mon, upload/index va chat.
+- `03_ProductGroup/EduChatbot.ProductGroup`: ASP.NET Core Razor Pages product/group app, co them dashboard van hanh, SignalR realtime va Worker Service.
 - `AiService`: FastAPI service cho RAG, upload/index va chat.
 - `RblService`: FastAPI project rieng cho module nghien cuu RBL/benchmark, chay o port 8010.
 - `temp_open_notebook`: chi de tham khao opensource, khong can chay trong Visual Studio.
 
 ## Chuan bi mot lan
 
-1. Cai .NET SDK phu hop voi `TargetFramework` trong `EduChatbot.Web.csproj`.
+1. Cai .NET SDK phu hop voi `TargetFramework` trong `01_MVC/EduChatbot.Web/EduChatbot.Web.csproj`.
 2. Cai Python dependencies:
 
 ```powershell
@@ -45,7 +45,7 @@ pip install -r requirements.txt
 
 ```powershell
 cd D:\Project\PRN222
-dotnet ef database update --project EduChatbot.Web\EduChatbot.Web.csproj
+dotnet ef database update --project 01_MVC\EduChatbot.Web\EduChatbot.Web.csproj
 ```
 
 4. Cai Ollama va model local:
@@ -72,7 +72,7 @@ Neu Python khong nam trong PATH, sua:
 }
 ```
 
-trong `EduChatbot.Web\appsettings.Development.json`.
+trong `01_MVC\EduChatbot.Web\appsettings.Development.json`.
 
 ## Test nhanh
 

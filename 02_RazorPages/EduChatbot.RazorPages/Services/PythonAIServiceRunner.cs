@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EduChatbot.ProductGroup.Services
+namespace EduChatbot.RazorPages.Services
 {
     public class PythonAIServiceRunner : IHostedService, IDisposable
     {
@@ -44,7 +44,7 @@ namespace EduChatbot.ProductGroup.Services
             var aiServiceDir = ResolveAiServiceDirectory();
             if (aiServiceDir == null)
             {
-                _logger.LogError("Cannot find AiService directory. Expected it next to EduChatbot.ProductGroup in the solution root.");
+                _logger.LogError("Cannot find AiService directory. Expected it in the repository root.");
                 return;
             }
 
@@ -190,8 +190,11 @@ namespace EduChatbot.ProductGroup.Services
             var candidates = new[]
             {
                 Path.Combine(_environment.ContentRootPath, "..", "AiService"),
+                Path.Combine(_environment.ContentRootPath, "..", "..", "AiService"),
                 Path.Combine(Directory.GetCurrentDirectory(), "AiService"),
-                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "AiService")
+                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "AiService"),
+                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "AiService"),
+                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "AiService")
             };
 
             return candidates
@@ -274,5 +277,4 @@ namespace EduChatbot.ProductGroup.Services
         private static extern bool CloseHandle(IntPtr hObject);
     }
 }
-
 

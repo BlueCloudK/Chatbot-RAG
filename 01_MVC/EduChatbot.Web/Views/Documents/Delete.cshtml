@@ -13,7 +13,7 @@
         <dt class = "col-sm-3">Tên file</dt>
         <dd class = "col-sm-9">@Html.DisplayFor(model => model.FileName)</dd>
         <dt class = "col-sm-3">Môn học</dt>
-        <dd class = "col-sm-9">@Model.Subject.Name</dd>
+        <dd class = "col-sm-9">@(Model.Subject?.Name ?? "N/A")</dd>
         <dt class = "col-sm-3">Đã Index AI?</dt>
         <dd class = "col-sm-9">@(Model.IsIndexed ? "Rồi" : "Chưa")</dd>
     </dl>

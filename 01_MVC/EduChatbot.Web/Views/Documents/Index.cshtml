@@ -25,7 +25,7 @@
             <td>
                 <a href="@item.FilePath" target="_blank">@item.FileName</a>
             </td>
-            <td>@item.Subject.Name (@item.Subject.Code)</td>
+            <td>@(item.Subject?.Name ?? "N/A") (@(item.Subject?.Code ?? "N/A"))</td>
             <td>@item.UploadedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
             <td>
                 @if (item.IsIndexed)

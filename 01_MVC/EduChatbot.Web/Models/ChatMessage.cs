@@ -16,10 +16,10 @@ namespace EduChatbot.Web.Models
 
         [Required]
         [MaxLength(20)]
-        public string Role { get; set; } // "User" or "Bot"
+        public string Role { get; set; } = string.Empty; // "User" or "Bot"
 
         [Required]
-        public string Content { get; set; }
+        public string Content { get; set; } = string.Empty;
 
         public string? SourceDocuments { get; set; } = ""; // JSON or comma separated string for citations
 
