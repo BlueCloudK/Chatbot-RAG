@@ -6,7 +6,7 @@ There are three separate solutions that can be opened with Visual Studio 2022:
 - `02_RazorPages/EduChatbot.RazorPages.sln`: Razor Pages version.
 - `03_ProductGroup/EduChatbot.Group.sln`: ProductGroup Razor Pages version.
 
-All three variants include subject management, document upload/indexing, RAG chat, a dashboard, SignalR realtime updates, and a background Worker Service.
+All three variants include subject management, document upload/indexing, and RAG chat. The ProductGroup variant additionally includes a dashboard, SignalR realtime updates, and a background Worker Service.
 
 If you only need to run the main product, open `01_MVC/EduChatbot.MVC.sln`. If you need to demo all three structures, open each solution separately:
 
@@ -14,16 +14,14 @@ If you only need to run the main product, open `01_MVC/EduChatbot.MVC.sln`. If y
 - Razor Pages: `02_RazorPages/EduChatbot.RazorPages.sln`, port `5101`
 - ProductGroup: `03_ProductGroup/EduChatbot.Group.sln`, port `5102`
 
-## Dashboard, SignalR, and Worker Service
+## ProductGroup Dashboard, SignalR, and Worker Service
 
-Each solution demonstrates:
+Only the ProductGroup solution demonstrates:
 
 - SignalR hub at `/hubs/product`.
 - Realtime subject CRUD events shown on the `Subjects` page and `Dashboard`.
 - Realtime document/chat events for upload, index success/failure, document deletion, and chatbot replies.
 - `ProductWorkerService`, which runs in the background and sends heartbeat events to the SignalR feed.
-- MVC Dashboard: `http://localhost:5099/Dashboard`
-- Razor Pages Dashboard: `http://localhost:5101/Dashboard`
 - ProductGroup Dashboard: `http://localhost:5102/Dashboard`
 
 ## Important Structure

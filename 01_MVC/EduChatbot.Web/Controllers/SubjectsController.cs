@@ -4,19 +4,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EduChatbot.Web.Data;
 using EduChatbot.Web.Models;
-using EduChatbot.Web.Services;
 
 namespace EduChatbot.Web.Controllers
 {
     public class SubjectsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly ProductRealtimeNotifier _notifier;
 
-        public SubjectsController(ApplicationDbContext context, ProductRealtimeNotifier notifier)
+        public SubjectsController(ApplicationDbContext context)
         {
             _context = context;
-            _notifier = notifier;
         }
 
         // GET: Subjects
@@ -40,11 +37,6 @@ namespace EduChatbot.Web.Controllers
             {
                 _context.Add(subject);
                 await _context.SaveChangesAsync();
-                await _notifier.PublishAsync(
-                    "SubjectCreated",
-                    "Them mon hoc",
-                    $"Da them mon {subject.Name} ({subject.Code}).",
-                    new { subject.Id, subject.Name, subject.Code });
                 return RedirectToAction("Index", "Home");
             }
             return RedirectToAction("Index", "Home");
@@ -72,11 +64,6 @@ namespace EduChatbot.Web.Controllers
                 {
                     _context.Update(subject);
                     await _context.SaveChangesAsync();
-                    await _notifier.PublishAsync(
-                        "SubjectUpdated",
-                        "Sua mon hoc",
-                        $"Da cap nhat mon {subject.Name} ({subject.Code}).",
-                        new { subject.Id, subject.Name, subject.Code });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -103,16 +90,8 @@ namespace EduChatbot.Web.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var subject = await _context.Subjects.FindAsync(id);
-            if (subject != null)
-            {
-                _context.Subjects.Remove(subject);
-                await _context.SaveChangesAsync();
-                await _notifier.PublishAsync(
-                    "SubjectDeleted",
-                    "Xoa mon hoc",
-                    $"Da xoa mon {subject.Name} ({subject.Code}).",
-                    new { subject.Id, subject.Name, subject.Code });
-            }
+            if (subject != null) _context.Subjects.Remove(subject);
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

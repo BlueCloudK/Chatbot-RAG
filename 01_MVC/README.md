@@ -30,9 +30,6 @@ http://localhost:5099
 - Chat and Q&A over indexed documents.
 - Source citation from uploaded documents.
 - Chat history.
-- Overview dashboard.
-- SignalR realtime updates for CRUD, upload, and chat events.
-- Background Worker Service heartbeat.
 
 ## Structure
 
@@ -70,10 +67,4 @@ ollama pull qwen2.5:3b
 
 The web app automatically starts the local Python AI service at `http://127.0.0.1:8000`.
 
-`RblService` is included in this folder for standalone benchmark demos when needed.
-
-Dashboard:
-
-```text
-http://localhost:5099/Dashboard
-```
+`RblService` is included in this folder for standalone benchmark demos when needed. SignalR, dashboard, and Worker Service features are intentionally kept in the ProductGroup variant only.

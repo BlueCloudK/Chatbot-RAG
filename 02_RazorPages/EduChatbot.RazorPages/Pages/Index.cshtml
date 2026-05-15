@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model IndexModel
 @{
     ViewData["Title"] = "EduChatbot Razor Pages";
@@ -11,10 +11,7 @@
             <h1>EduChatbot AI</h1>
             <p>Ban Razor Pages chay cung chuc nang voi MVC: quan ly mon hoc, upload tai lieu, index AI va chat theo nguon.</p>
         </div>
-        <div class="actions">
-            <a class="secondary" asp-page="/Dashboard">Dashboard</a>
-            <a class="primary" asp-page="/Subjects/Index">Quan ly mon</a>
-        </div>
+        <a class="primary" asp-page="/Subjects/Index">Quan ly mon</a>
     </div>
 
     <div class="subject-grid">
@@ -33,4 +30,3 @@
         }
     </div>
 </section>
-

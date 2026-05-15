@@ -6,7 +6,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using EduChatbot.Web.Data;
 using EduChatbot.Web.Models;
-using EduChatbot.Web.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,14 +19,12 @@ namespace EduChatbot.Web.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ProductRealtimeNotifier _notifier;
 
-        public DocumentsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, IHttpClientFactory httpClientFactory, ProductRealtimeNotifier notifier)
+        public DocumentsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _httpClientFactory = httpClientFactory;
-            _notifier = notifier;
         }
 
         public async Task<IActionResult> Index()
@@ -102,11 +99,6 @@ namespace EduChatbot.Web.Controllers
 
             _context.Documents.Add(document);
             await _context.SaveChangesAsync();
-            await _notifier.PublishAsync(
-                "DocumentUploaded",
-                "Tai lieu moi",
-                $"Dang index {document.FileName}.",
-                new { subjectId, document.Id, document.FileName });
 
             try
             {
@@ -165,11 +157,6 @@ namespace EduChatbot.Web.Controllers
 
             _context.Update(document);
             await _context.SaveChangesAsync();
-            await _notifier.PublishAsync(
-                document.IsIndexed ? "DocumentIndexed" : "DocumentFailed",
-                document.IsIndexed ? "Index xong" : "Index loi",
-                $"{document.FileName}: {document.IndexMessage}",
-                new { subjectId, document.Id, document.FileName, document.IsIndexed, document.ChunkCount });
 
             if (IsAjaxRequest())
             {
@@ -226,11 +213,6 @@ namespace EduChatbot.Web.Controllers
 
                 _context.Documents.Remove(document);
                 await _context.SaveChangesAsync();
-                await _notifier.PublishAsync(
-                    "DocumentDeleted",
-                    "Xoa tai lieu",
-                    $"Da xoa {document.FileName}.",
-                    new { document.SubjectId, document.Id, document.FileName });
             }
 
             if (!string.IsNullOrEmpty(returnUrl)) return LocalRedirect(returnUrl);

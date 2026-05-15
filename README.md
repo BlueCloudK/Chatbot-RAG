@@ -20,7 +20,7 @@ Each folder is a standalone package with its own solution, web app, `AiService`,
 - Chat and Q&A over indexed documents.
 - Source citation from uploaded documents.
 - Chat history by subject/session.
-- Dashboard, SignalR realtime updates, and a background Worker Service in all three variants.
+- The ProductGroup variant additionally includes a dashboard, SignalR realtime updates, and a background Worker Service.
 
 ## Repository Structure
 
@@ -98,8 +98,6 @@ Each web app starts the `AiService` located in the same folder if the service is
 - MVC: `http://localhost:5099`
 - Razor Pages: `http://localhost:5101`
 - ProductGroup: `http://localhost:5102`
-- MVC dashboard: `http://localhost:5099/Dashboard`
-- Razor Pages dashboard: `http://localhost:5101/Dashboard`
 - ProductGroup dashboard: `http://localhost:5102/Dashboard`
 - AI health check: `http://127.0.0.1:8000`
 - RBL dashboard: `http://127.0.0.1:8010`
