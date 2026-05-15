@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EduChatbot.RazorPages", "EduChatbot.RazorPages\EduChatbot.RazorPages.csproj", "{E63EFD32-0B3F-4C2D-A792-F3DAB881F5D9}"
+EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "AiService", "AiService\AiService.pyproj", "{7D4E978F-4040-4A38-99F0-A3DA01B1C0EF}"
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "RblService", "RblService\RblService.pyproj", "{B4A93596-3273-4A39-94D9-C9FD586A8F6F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EduChatbot.RazorPages", "EduChatbot.RazorPages\EduChatbot.RazorPages.csproj", "{E63EFD32-0B3F-4C2D-A792-F3DAB881F5D9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F8C47DC9-E694-48B3-9E77-71FB725C6E25}"
 	ProjectSection(SolutionItems) = preProject

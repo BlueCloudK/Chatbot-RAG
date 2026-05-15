@@ -18,4 +18,11 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="chroma_db\**;temp_uploads\**;wwwroot\uploads\**" />
+    <Content Remove="chroma_db\**;temp_uploads\**;wwwroot\uploads\**" />
+    <EmbeddedResource Remove="chroma_db\**;temp_uploads\**;wwwroot\uploads\**" />
+    <None Remove="chroma_db\**;temp_uploads\**;wwwroot\uploads\**" />
+  </ItemGroup>
+
 </Project>
