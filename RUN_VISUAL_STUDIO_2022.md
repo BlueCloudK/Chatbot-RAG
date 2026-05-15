@@ -2,17 +2,17 @@
 
 Co 3 solution rieng de mo bang Visual Studio 2022:
 
-- `EduChatbot.MVC.sln`: ban chatbot MVC.
-- `EduChatbot.RazorPages.sln`: ban Razor Pages.
-- `EduChatbot.Group.sln`: ban ProductGroup bang Razor Pages.
+- `01_MVC/EduChatbot.MVC.sln`: ban chatbot MVC.
+- `02_RazorPages/EduChatbot.RazorPages.sln`: ban Razor Pages.
+- `03_ProductGroup/EduChatbot.Group.sln`: ban ProductGroup bang Razor Pages.
 
 Ca 3 ban deu co quan ly mon, upload/index tai lieu, chat RAG, dashboard, SignalR realtime va Worker Service.
 
-Neu chi can chay san pham chinh, mo `EduChatbot.MVC.sln`. Neu can demo ba cau truc, mo tung solution rieng:
+Neu chi can chay san pham chinh, mo `01_MVC/EduChatbot.MVC.sln`. Neu can demo ba cau truc, mo tung solution rieng:
 
-- MVC: `EduChatbot.MVC.sln`, port `5099`
-- Razor Pages: `EduChatbot.RazorPages.sln`, port `5101`
-- ProductGroup: `EduChatbot.Group.sln`, port `5102`
+- MVC: `01_MVC/EduChatbot.MVC.sln`, port `5099`
+- Razor Pages: `02_RazorPages/EduChatbot.RazorPages.sln`, port `5101`
+- ProductGroup: `03_ProductGroup/EduChatbot.Group.sln`, port `5102`
 
 ## Dashboard, SignalR va Worker Service
 
@@ -28,11 +28,11 @@ Ca 3 solution deu demo cac phan sau:
 
 ## Cau truc can quan tam
 
-- `01_MVC/EduChatbot.Web`: ASP.NET Core MVC web app. Day la startup project cua `EduChatbot.MVC.sln`.
-- `02_RazorPages/EduChatbot.RazorPages`: ASP.NET Core Razor Pages project rieng.
-- `03_ProductGroup/EduChatbot.ProductGroup`: ASP.NET Core Razor Pages product/group app.
-- `AiService`: FastAPI service cho RAG, upload/index va chat.
-- `RblService`: FastAPI project rieng cho module nghien cuu RBL/benchmark, chay o port 8010.
+- `01_MVC`: goi MVC doc lap, co `EduChatbot.MVC.sln`, `EduChatbot.Web`, `AiService`, `RblService`.
+- `02_RazorPages`: goi Razor Pages doc lap, co `EduChatbot.RazorPages.sln`, web app, `AiService`, `RblService`.
+- `03_ProductGroup`: goi ProductGroup doc lap, co `EduChatbot.Group.sln`, web app, `AiService`, `RblService`.
+- `AiService` trong tung folder: FastAPI service cho RAG, upload/index va chat.
+- `RblService` trong tung folder: FastAPI project rieng cho module nghien cuu RBL/benchmark, chay o port 8010.
 - `temp_open_notebook`: chi de tham khao opensource, khong can chay trong Visual Studio.
 
 ## Chuan bi mot lan
@@ -41,7 +41,7 @@ Ca 3 solution deu demo cac phan sau:
 2. Cai Python dependencies:
 
 ```powershell
-cd D:\Project\PRN222\AiService
+cd D:\Project\PRN222\01_MVC\AiService
 pip install -r requirements.txt
 ```
 
@@ -60,7 +60,7 @@ ollama pull qwen2:1.5b
 
 ## Chay trong Visual Studio
 
-1. Mo `EduChatbot.MVC.sln`.
+1. Mo `01_MVC\EduChatbot.MVC.sln`.
 2. Right click `EduChatbot.Web` -> `Set as Startup Project`.
 3. Chon launch profile `http`.
 4. Bam `F5` hoac `Ctrl+F5`.
