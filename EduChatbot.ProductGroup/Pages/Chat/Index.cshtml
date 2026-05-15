@@ -1,0 +1,154 @@
+﻿@page
+@model EduChatbot.ProductGroup.Pages.Chat.IndexModel
+@{
+    ViewData["Title"] = "Chat";
+}
+
+<section class="chat-shell" data-subject-id="@Model.CurrentSubject.Id">
+    <aside class="sidebar">
+        <a class="back" asp-page="/Index">&larr; Mon hoc</a>
+        <h1>@Model.CurrentSubject.Name</h1>
+        <div id="aiStatus" class="status">Dang kiem tra AI...</div>
+
+        <form id="uploadForm" method="post" enctype="multipart/form-data" asp-page-handler="Upload" asp-route-subjectId="@Model.CurrentSubject.Id">
+            @Html.AntiForgeryToken()
+            <input type="file" name="file" accept=".pdf,.docx,.ppt,.pptx" />
+            <button type="submit">Tai len</button>
+            <div class="progress"><span id="uploadBar"></span></div>
+            <small id="uploadText">Chua co file dang xu ly.</small>
+        </form>
+
+        <h2>Tai lieu da index</h2>
+        <div class="doc-list">
+            @foreach (var doc in Model.Documents)
+            {
+                <article>
+                    <strong title="@doc.FileName">@doc.FileName</strong>
+                    <span class="pill @(doc.IsIndexed ? "ok" : doc.IndexStatus == "Failed" ? "bad" : "wait")">
+                        @(doc.IsIndexed ? "Da chunk & embed" : doc.IndexStatus)
+                    </span>
+                    <small>@doc.ChunkCount doan</small>
+                    <form method="post" asp-page-handler="DeleteDocument" asp-route-id="@doc.Id" asp-route-subjectId="@Model.CurrentSubject.Id">
+                        <button type="submit" title="Xoa tai lieu">Xoa</button>
+                    </form>
+                </article>
+            }
+        </div>
+    </aside>
+
+    <main class="conversation">
+        <div id="messages" class="messages">
+            @foreach (var message in (Model.CurrentSession.Messages ?? Enumerable.Empty<EduChatbot.ProductGroup.Models.ChatMessage>()).OrderBy(m => m.Timestamp))
+            {
+                <div class="message @(message.Role == "User" ? "user" : "bot")">
+                    <div class="bubble">@message.Content</div>
+                    @if (!string.IsNullOrWhiteSpace(message.SourceDocuments))
+                    {
+                        <div class="sources">@message.SourceDocuments</div>
+                    }
+                </div>
+            }
+        </div>
+
+        <form id="chatForm" method="post" asp-page-handler="SendMessage" asp-route-subjectId="@Model.CurrentSubject.Id">
+            @Html.AntiForgeryToken()
+            <textarea name="content" placeholder="Hoi ve noi dung tai lieu..." rows="1"></textarea>
+            <button type="submit">Gui</button>
+        </form>
+    </main>
+</section>
+
+@section Scripts {
+<script>
+const shell = document.querySelector('.chat-shell');
+const subjectId = shell.dataset.subjectId;
+const statusEl = document.getElementById('aiStatus');
+const messages = document.getElementById('messages');
+const uploadBar = document.getElementById('uploadBar');
+const uploadText = document.getElementById('uploadText');
+
+function token(form) {
+    return form.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+}
+
+function addMessage(role, text, sources) {
+    const row = document.createElement('div');
+    row.className = `message ${role}`;
+    row.innerHTML = `<div class="bubble"></div>${sources ? '<div class="sources"></div>' : ''}`;
+    row.querySelector('.bubble').textContent = text;
+    if (sources) row.querySelector('.sources').textContent = sources;
+    messages.appendChild(row);
+    messages.scrollTop = messages.scrollHeight;
+}
+
+async function checkAi() {
+    try {
+        const response = await fetch('?handler=AiStatus');
+        const data = await response.json();
+        statusEl.textContent = data.ready ? 'AI san sang' : data.message;
+        statusEl.className = `status ${data.ready ? 'ok' : 'wait'}`;
+    } catch {
+        statusEl.textContent = 'AI chua san sang';
+        statusEl.className = 'status wait';
+    }
+}
+
+document.getElementById('chatForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const textarea = form.querySelector('textarea');
+    const content = textarea.value.trim();
+    if (!content) return;
+
+    textarea.value = '';
+    addMessage('user', content);
+    addMessage('bot pending', 'Dang suy nghi...');
+    const pending = messages.lastElementChild;
+
+    const body = new FormData(form);
+    body.set('content', content);
+    const response = await fetch(`?handler=SendMessage&subjectId=${subjectId}`, {
+        method: 'POST',
+        headers: { 'RequestVerificationToken': token(form), 'X-Requested-With': 'XMLHttpRequest' },
+        body
+    });
+    const data = await response.json();
+    pending.remove();
+    if (data.success) addMessage('bot', data.bot.content, data.bot.sourceDocuments);
+    else addMessage('bot', data.message ?? 'Khong gui duoc cau hoi.');
+});
+
+document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const body = new FormData(form);
+    uploadBar.style.width = '12%';
+    uploadText.textContent = 'Dang gui file...';
+
+    const timer = setInterval(() => {
+        const current = parseInt(uploadBar.style.width || '12', 10);
+        uploadBar.style.width = Math.min(current + 8, 92) + '%';
+        uploadText.textContent = 'Dang doc file va tao embedding...';
+    }, 1200);
+
+    try {
+        const response = await fetch(`?handler=Upload&subjectId=${subjectId}`, {
+            method: 'POST',
+            headers: { 'RequestVerificationToken': token(form), 'X-Requested-With': 'XMLHttpRequest' },
+            body
+        });
+        const data = await response.json();
+        uploadBar.style.width = data.indexed ? '100%' : '0%';
+        uploadText.textContent = data.message ?? 'Da xu ly xong.';
+        setTimeout(() => location.reload(), 900);
+    } finally {
+        clearInterval(timer);
+    }
+});
+
+checkAi();
+setInterval(checkAi, 5000);
+messages.scrollTop = messages.scrollHeight;
+</script>
+}
+

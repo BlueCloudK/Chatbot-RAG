@@ -1,0 +1,30 @@
+@model EduChatbot.Web.Models.Document
+
+@{
+    ViewData["Title"] = "Upload Tài liệu";
+}
+
+<h1>Upload Tài liệu học tập</h1>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            
+            <div class="form-group mb-3">
+                <label class="control-label">Chọn Môn học</label>
+                <select name="subjectId" class="form-select" asp-items="ViewBag.SubjectId"></select>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">File tài liệu (PDF, DOCX, PPTX)</label>
+                <input type="file" name="file" class="form-control" required accept=".pdf,.docx,.pptx,.ppt" />
+            </div>
+
+            <div class="form-group mt-4">
+                <input type="submit" value="Upload & Chuẩn bị Index" class="btn btn-success" />
+                <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>

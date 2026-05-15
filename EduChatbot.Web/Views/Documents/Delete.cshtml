@@ -1,0 +1,26 @@
+@model EduChatbot.Web.Models.Document
+
+@{
+    ViewData["Title"] = "Xóa Tài liệu";
+}
+
+<h1>Xóa Tài liệu</h1>
+
+<h3 class="text-danger">Bạn có chắc chắn muốn xóa file này không? Dữ liệu AI đã học (nếu có) có thể cần phải index lại.</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-3">Tên file</dt>
+        <dd class = "col-sm-9">@Html.DisplayFor(model => model.FileName)</dd>
+        <dt class = "col-sm-3">Môn học</dt>
+        <dd class = "col-sm-9">@Model.Subject.Name</dd>
+        <dt class = "col-sm-3">Đã Index AI?</dt>
+        <dd class = "col-sm-9">@(Model.IsIndexed ? "Rồi" : "Chưa")</dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Xóa vĩnh viễn" class="btn btn-danger" /> |
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    </form>
+</div>

@@ -1,0 +1,72 @@
+﻿@page
+@model EduChatbot.ProductGroup.Pages.Subjects.IndexModel
+@{
+    ViewData["Title"] = "Quan ly mon";
+}
+
+<section class="workspace">
+    <div class="topbar">
+        <div>
+            <p class="eyebrow">Mon hoc</p>
+            <h1>Quan ly mon hoc</h1>
+            <p>Tao, sua, xoa mon hoc va xem su kien realtime tu SignalR.</p>
+        </div>
+        <a class="secondary" asp-page="/Index">Ve trang chinh</a>
+    </div>
+
+    <div id="liveNotice" class="live-notice">SignalR dang ket noi...</div>
+
+    <form method="post" asp-page-handler="Create" class="inline-form">
+        <input asp-for="Input.Name" placeholder="Ten mon hoc" />
+        <input asp-for="Input.Code" placeholder="Ma mon" />
+        <button type="submit">Them mon</button>
+    </form>
+
+    <div class="subject-grid">
+        @foreach (var subject in Model.Subjects)
+        {
+            var indexed = subject.Documents?.Count(d => d.IsIndexed) ?? 0;
+            var total = subject.Documents?.Count ?? 0;
+            <article class="subject-card">
+                <div>
+                    <span class="code">@subject.Code</span>
+                    <h2>@subject.Name</h2>
+                    <p>@indexed/@total tai lieu da index</p>
+                </div>
+                <form method="post" asp-page-handler="Edit" asp-route-id="@subject.Id" class="edit-form">
+                    <input name="name" value="@subject.Name" aria-label="Ten mon" />
+                    <input name="code" value="@subject.Code" aria-label="Ma mon" />
+                    <button type="submit">Luu</button>
+                </form>
+                <div class="actions">
+                    <a asp-page="/Chat/Index" asp-route-subjectId="@subject.Id">Chat</a>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@subject.Id">
+                        <button type="submit" class="danger">Xoa</button>
+                    </form>
+                </div>
+            </article>
+        }
+    </div>
+</section>
+
+@section Scripts {
+<script src="~/lib/signalr/signalr.min.js"></script>
+<script>
+const notice = document.getElementById('liveNotice');
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl('/hubs/product')
+    .withAutomaticReconnect()
+    .build();
+
+connection.on('ReceiveActivity', activity => {
+    if (!activity.kind || !activity.kind.startsWith('Subject')) return;
+    notice.textContent = `${activity.time} - ${activity.title}: ${activity.message}`;
+    notice.classList.add('active');
+});
+
+connection.start()
+    .then(() => notice.textContent = 'SignalR da ket noi: them/sua/xoa mon se hien realtime.')
+    .catch(() => notice.textContent = 'SignalR chua ket noi duoc.');
+</script>
+}
+

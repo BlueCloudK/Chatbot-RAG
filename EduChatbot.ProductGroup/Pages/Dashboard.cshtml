@@ -1,0 +1,77 @@
+@page
+@model EduChatbot.ProductGroup.Pages.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<section class="workspace">
+    <div class="topbar">
+        <div>
+            <p class="eyebrow">Product dashboard</p>
+            <h1>Tong quan van hanh</h1>
+            <p>Man hinh them rieng cho ban ProductGroup: SignalR realtime, Worker Service heartbeat va tong quan du lieu.</p>
+        </div>
+        <a class="secondary" asp-page="/Index">Ve chatbot</a>
+    </div>
+
+    <div class="subject-grid">
+        <article class="subject-card"><div><span class="code">AI</span><h2>@(Model.AiReady ? "San sang" : "Dang khoi dong")</h2><p>Trang thai FastAPI port 8000</p></div></article>
+        <article class="subject-card"><div><span class="code">MON</span><h2>@Model.SubjectCount</h2><p>Mon hoc hien co</p></div></article>
+        <article class="subject-card"><div><span class="code">DOC</span><h2>@Model.IndexedCount/@Model.DocumentCount</h2><p>Tai lieu da index</p></div></article>
+        <article class="subject-card"><div><span class="code">CHAT</span><h2>@Model.ChatCount</h2><p>Tong tin nhan da luu</p></div></article>
+    </div>
+
+    <section class="activity-panel">
+        <div class="topbar compact">
+            <div>
+                <p class="eyebrow">SignalR live feed</p>
+                <h2>Su kien realtime</h2>
+            </div>
+            <span id="hubState" class="status wait">Dang ket noi...</span>
+        </div>
+        <div id="activityList" class="activity-list">
+            @foreach (var item in Model.Activities)
+            {
+                <article>
+                    <span>@item.Time.ToString("HH:mm:ss")</span>
+                    <strong>@item.Title</strong>
+                    <p>@item.Message</p>
+                </article>
+            }
+        </div>
+    </section>
+</section>
+
+@section Scripts {
+<script src="~/lib/signalr/signalr.min.js"></script>
+<script>
+const hubState = document.getElementById('hubState');
+const list = document.getElementById('activityList');
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl('/hubs/product')
+    .withAutomaticReconnect()
+    .build();
+
+function addActivity(activity) {
+    const item = document.createElement('article');
+    item.innerHTML = '<span></span><strong></strong><p></p>';
+    item.querySelector('span').textContent = activity.time ?? new Date().toLocaleTimeString();
+    item.querySelector('strong').textContent = activity.title ?? activity.kind ?? 'Event';
+    item.querySelector('p').textContent = activity.message ?? '';
+    list.prepend(item);
+    while (list.children.length > 20) list.lastElementChild.remove();
+}
+
+connection.on('ReceiveActivity', addActivity);
+
+connection.start()
+    .then(() => {
+        hubState.textContent = 'SignalR online';
+        hubState.className = 'status ok';
+    })
+    .catch(() => {
+        hubState.textContent = 'SignalR offline';
+        hubState.className = 'status wait';
+    });
+</script>
+}

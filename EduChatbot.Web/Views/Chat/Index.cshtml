@@ -1,0 +1,722 @@
+@model EduChatbot.Web.Models.ViewModels.ChatViewModel
+
+@{
+    Layout = null;
+    var subjectName = Model.CurrentSession?.Subject?.Name ?? "Chat";
+    var subjectCode = Model.CurrentSession?.Subject?.Code ?? "";
+    var subjectId = Model.CurrentSession?.SubjectId ?? 0;
+    var docCount = Model.CurrentDocuments?.Count() ?? 0;
+    var indexedCount = Model.CurrentDocuments?.Count(d => d.IsIndexed) ?? 0;
+    var processingCount = Model.CurrentDocuments?.Count(d => !d.IsIndexed && d.IndexStatus != "Failed") ?? 0;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@subjectName - EduChatbot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f0f11; color: #e8eaed; overflow: hidden; margin: 0; }
+        
+        .app { display: flex; height: 100vh; }
+        
+        /* === SIDEBAR === */
+        .sidebar { width: 320px; min-width: 320px; background: #0f0f11; display: flex; flex-direction: column; border-right: 1px solid #1e1e22; }
+        
+        .sb-header { padding: 16px 20px; border-bottom: 1px solid #1e1e22; display: flex; align-items: center; gap: 12px; }
+        .sb-back { width: 34px; height: 34px; border-radius: 8px; background: #1a1a1e; border: 1px solid #2a2a2e; display: flex; align-items: center; justify-content: center; color: #9aa0a6; text-decoration: none; transition: 0.2s; font-size: 0.9rem; }
+        .sb-back:hover { background: #2a2a2e; color: #e8eaed; }
+        .sb-title { font-weight: 600; font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .sb-code { font-size: 0.75rem; color: #667eea; font-weight: 500; }
+        
+        .sb-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+        
+        /* Stats Bar */
+        .stats-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+        .stat { flex: 1; background: #1a1a1e; border: 1px solid #2a2a2e; border-radius: 10px; padding: 10px 12px; text-align: center; }
+        .stat-val { font-size: 1.2rem; font-weight: 700; color: #667eea; }
+        .stat-label { font-size: 0.65rem; color: #9aa0a6; margin-top: 2px; }
+        
+        /* Section Title */
+        .sec-title { font-size: 0.75rem; font-weight: 600; color: #9aa0a6; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+        
+        /* Upload */
+        .upload-area { margin-bottom: 16px; }
+        .upload-btn { width: 100%; border: 1px dashed #2a2a2e; border-radius: 12px; padding: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; background: transparent; color: #667eea; font-weight: 500; font-size: 0.9rem; transition: 0.2s; }
+        .upload-btn:hover { background: rgba(102,126,234,0.05); border-color: #667eea; }
+        .upload-progress { display: none; background: #1a1a1e; border: 1px solid #2a2a2e; border-radius: 10px; padding: 12px; margin-top: 10px; }
+        .upload-progress.show { display: block; }
+        .progress-head { display: flex; justify-content: space-between; gap: 8px; font-size: 0.75rem; color: #d4d4d8; margin-bottom: 8px; }
+        .progress-file { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .progress-percent { color: #81c995; font-weight: 600; }
+        .progress-track { height: 7px; background: #0f0f11; border-radius: 999px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #667eea, #81c995); border-radius: 999px; transition: width 0.25s ease; }
+        .progress-note { margin-top: 8px; font-size: 0.7rem; color: #9aa0a6; line-height: 1.4; }
+        
+        /* Source Card */
+        .src-card { background: #1a1a1e; border: 1px solid #2a2a2e; border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; transition: 0.2s; }
+        .src-card:hover { border-color: #3a3a3e; }
+        .src-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .src-icon-pdf { color: #ea4335; }
+        .src-icon-doc { color: #4285f4; }
+        .src-icon-ppt { color: #fbbc04; }
+        .src-name { font-size: 0.85rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .src-detail { font-size: 0.7rem; color: #9aa0a6; margin-top: 3px; }
+        .badge-ok { background: #1b3a2a; color: #81c995; font-size: 0.65rem; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
+        .badge-wait { background: #3a2e1b; color: #fde293; font-size: 0.65rem; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
+        .badge-fail { background: #3a1b1b; color: #f28b82; font-size: 0.65rem; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
+        .chunk-pill { color: #9aa0a6; font-size: 0.68rem; margin-left: 4px; }
+        .del-btn { background: none; border: none; color: #5f6368; padding: 4px; border-radius: 6px; transition: 0.2s; cursor: pointer; }
+        .del-btn:hover { color: #ea4335; background: rgba(234,67,53,0.1); }
+        
+        /* Empty state */
+        .empty-hint { text-align: center; padding: 20px 10px; color: #9aa0a6; font-size: 0.85rem; line-height: 1.6; }
+        .empty-hint i { font-size: 2rem; color: #667eea40; margin-bottom: 10px; display: block; }
+        
+        /* === MAIN CHAT === */
+        .main { flex: 1; display: flex; flex-direction: column; background: #141416; border-left: 1px solid #1e1e22; }
+        
+        .chat-topbar { padding: 12px 24px; border-bottom: 1px solid #1e1e22; display: flex; justify-content: space-between; align-items: center; }
+        .chat-topbar-title { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+        .chat-topbar-title i { color: #667eea; }
+        .scope-badge { font-size: 0.7rem; background: #1b3a2a; color: #81c995; padding: 4px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px; }
+        .topbar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .ai-status { font-size: 0.7rem; border: 1px solid #2a2a2e; background: #1a1a1e; color: #9aa0a6; padding: 4px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; }
+        .ai-status.ready { background: #1b3a2a; color: #81c995; border-color: #28543d; }
+        .ai-status.starting { background: #3a2e1b; color: #fde293; border-color: #5a4521; }
+        .ai-status.error { background: #3a1b1b; color: #f28b82; border-color: #5a2828; }
+        
+        .chat-area { flex: 1; overflow-y: auto; padding: 30px 10%; display: flex; flex-direction: column; scroll-behavior: smooth; }
+        
+        /* Messages */
+        .msg-user { align-self: flex-end; background: #1e2a4a; border: 1px solid #2a3a5a; color: #e8eaed; padding: 14px 18px; border-radius: 16px 16px 4px 16px; margin-bottom: 24px; max-width: 75%; font-size: 0.95rem; line-height: 1.5; }
+        
+        .msg-bot { align-self: flex-start; margin-bottom: 24px; max-width: 90%; }
+        .bot-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .bot-avatar { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+        .bot-label { font-size: 0.8rem; font-weight: 600; color: #667eea; }
+        .bot-content { font-size: 0.95rem; line-height: 1.7; color: #d4d4d8; }
+        .bot-content h3 { font-size: 1rem; color: #f1f3f4; margin: 14px 0 8px; font-weight: 700; }
+        .bot-content h3:first-child { margin-top: 0; }
+        .bot-content p { margin: 0 0 10px; }
+        .bot-content ul, .bot-content ol { margin: 8px 0 12px 1.15rem; padding: 0; }
+        .bot-content li { margin: 6px 0; padding-left: 2px; }
+        .bot-content strong { color: #ffffff; font-weight: 700; }
+        .bot-content .answer-lead { color: #f1f3f4; font-weight: 500; }
+        
+        /* Citations */
+        .citations { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+        .cite-tag { background: #1a1a1e; border: 1px solid #2a2a2e; padding: 4px 10px; border-radius: 8px; font-size: 0.72rem; color: #9aa0a6; display: inline-flex; align-items: center; gap: 5px; }
+        .cite-tag i { color: #667eea; }
+        
+        /* Welcome */
+        .welcome { text-align: center; margin: auto; max-width: 450px; }
+        .welcome-icon { width: 64px; height: 64px; border-radius: 16px; background: linear-gradient(135deg, #667eea20, #764ba220); border: 1px solid #667eea30; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #667eea; margin: 0 auto 20px; }
+        .welcome h3 { font-weight: 600; margin-bottom: 8px; font-size: 1.3rem; }
+        .welcome p { color: #9aa0a6; font-size: 0.9rem; line-height: 1.6; }
+        .welcome-tips { margin-top: 24px; text-align: left; }
+        .tip { background: #1a1a1e; border: 1px solid #2a2a2e; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; font-size: 0.85rem; color: #9aa0a6; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.2s; }
+        .tip:hover { border-color: #667eea; color: #e8eaed; }
+        .tip i { color: #667eea; font-size: 1rem; }
+        
+        /* Input */
+        .input-area { padding: 16px 10% 24px; }
+        .input-box { background: #1a1a1e; border: 1px solid #2a2a2e; border-radius: 24px; padding: 6px 6px 6px 20px; display: flex; align-items: center; transition: 0.3s; }
+        .input-box:focus-within { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        .input-box input { border: none; background: transparent; color: #e8eaed; flex: 1; outline: none; padding: 10px 0; font-size: 0.95rem; }
+        .input-box input::placeholder { color: #5f6368; }
+        .send-btn { width: 42px; height: 42px; border-radius: 50%; border: none; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; cursor: pointer; }
+        .send-btn:hover { transform: scale(1.05); }
+        .send-btn.disabled { background: #2a2a2e; color: #5f6368; pointer-events: none; }
+        .input-hint { text-align: center; margin-top: 8px; font-size: 0.7rem; color: #5f6368; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #2a2a2e; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sb-header">
+            <a href="/" class="sb-back" title="Về trang chủ"><i class="bi bi-arrow-left"></i></a>
+            <div>
+                <div class="sb-title">@subjectName</div>
+                <div class="sb-code">@subjectCode</div>
+            </div>
+        </div>
+        
+        <div class="sb-body">
+            @if (Model.CurrentSession != null)
+            {
+                <!-- Stats -->
+                <div class="stats-bar">
+                    <div class="stat">
+                        <div class="stat-val">@docCount</div>
+                        <div class="stat-label">Tài liệu</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-val">@indexedCount</div>
+                        <div class="stat-label">Đã Index</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-val">@(Model.CurrentSession.Messages?.Count() ?? 0)</div>
+                        <div class="stat-label">Tin nhắn</div>
+                    </div>
+                </div>
+                
+                <!-- Upload -->
+                <div class="sec-title"><i class="bi bi-cloud-arrow-up"></i> Tải lên tài liệu</div>
+                <div class="upload-area">
+                    <form asp-controller="Documents" asp-action="Create" method="post" enctype="multipart/form-data" id="uploadForm">
+                        <input type="hidden" name="subjectId" value="@subjectId" />
+                        <input type="hidden" name="returnUrl" value="/Chat?subjectId=@subjectId" />
+                        <label class="upload-btn">
+                            <i class="bi bi-plus-lg"></i> Thêm nguồn (PDF, DOCX, PPTX)
+                            <input type="file" name="file" id="uploadFile" class="d-none" accept=".pdf,.docx,.pptx" />
+                        </label>
+                    </form>
+                    <div class="upload-progress" id="uploadProgress">
+                        <div class="progress-head">
+                            <span class="progress-file" id="progressFile">Đang tải tài liệu...</span>
+                            <span class="progress-percent" id="progressPercent">0%</span>
+                        </div>
+                        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+                        <div class="progress-note" id="progressNote">Đang gửi file lên server.</div>
+                    </div>
+                </div>
+                
+                <!-- Document List -->
+                <div class="sec-title"><i class="bi bi-files"></i> Danh sách tài liệu đã index</div>
+                
+                @if (Model.CurrentDocuments != null && Model.CurrentDocuments.Any())
+                {
+                    foreach (var doc in Model.CurrentDocuments)
+                    {
+                        var ext = System.IO.Path.GetExtension(doc.FileName).ToLower();
+                        var iconClass = ext == ".pdf" ? "bi-filetype-pdf src-icon-pdf"
+                            : ext == ".docx" ? "bi-filetype-docx src-icon-doc"
+                            : "bi-filetype-pptx src-icon-ppt";
+
+                        <div class="src-card">
+                            <i class="bi @iconClass src-icon"></i>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <div class="src-name" title="@doc.FileName">@doc.FileName</div>
+                                <div class="src-detail">
+                                    Tải lên: @doc.UploadedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                </div>
+                                <div class="mt-1">
+                                    @if (doc.IsIndexed)
+                                    {
+                                        <span class="badge-ok"><i class="bi bi-check-circle-fill"></i> Đã chunk & embed</span>
+                                        <span class="chunk-pill">@doc.ChunkCount đoạn</span>
+                                    }
+                                    else if (doc.IndexStatus == "Failed")
+                                    {
+                                        <span class="badge-fail" title="@doc.IndexMessage"><i class="bi bi-exclamation-triangle-fill"></i> Lỗi index</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-wait"><i class="bi bi-arrow-repeat"></i> Chờ xử lý</span>
+                                    }
+                                </div>
+                            </div>
+                            <form asp-controller="Documents" asp-action="Delete" asp-route-id="@doc.Id" method="post" onsubmit="return confirmDelete(event, this);">
+                                <input type="hidden" name="returnUrl" value="/Chat?subjectId=@subjectId" />
+                                <button type="submit" class="del-btn" title="Xóa"><i class="bi bi-trash3"></i></button>
+                            </form>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-hint">
+                        <i class="bi bi-inbox"></i>
+                        Chưa có tài liệu nào.<br/>
+                        Tải lên file để AI có thể trả lời câu hỏi.
+                    </div>
+                }
+            }
+        </div>
+    </div>
+    
+    <!-- MAIN CHAT -->
+    <div class="main">
+        @if (Model.CurrentSession != null)
+        {
+            <div class="chat-topbar">
+                <div class="chat-topbar-title"><i class="bi bi-chat-square-text"></i> Cuộc trò chuyện</div>
+                <div class="topbar-actions">
+                    <div class="ai-status starting" id="aiStatus"><span class="spinner-border spinner-border-sm"></span> AI dang khoi dong</div>
+                    @if (processingCount > 0)
+                    {
+                        <div class="ai-status starting"><span class="spinner-border spinner-border-sm"></span> Đang index @processingCount tài liệu</div>
+                    }
+                    <div class="scope-badge"><i class="bi bi-shield-lock-fill"></i> Giới hạn trong @docCount tài liệu</div>
+                </div>
+            </div>
+            
+            <div class="chat-area" id="chatBox">
+                @if (Model.CurrentSession.Messages == null || !Model.CurrentSession.Messages.Any())
+                {
+                    <div class="welcome">
+                        <div class="welcome-icon"><i class="bi bi-mortarboard"></i></div>
+                        <h3>Bắt đầu hỏi đáp</h3>
+                        <p>Tải tài liệu lên bên trái, sau đó hỏi bất kỳ điều gì. AI sẽ trả lời dựa trên nội dung tài liệu và trích dẫn nguồn gốc.</p>
+                        <div class="welcome-tips">
+                            <div class="tip" onclick="fillQ('Tóm tắt nội dung chính của tài liệu')"><i class="bi bi-lightbulb"></i> Tóm tắt nội dung chính của tài liệu</div>
+                            <div class="tip" onclick="fillQ('Liệt kê các khái niệm quan trọng')"><i class="bi bi-list-task"></i> Liệt kê các khái niệm quan trọng</div>
+                            <div class="tip" onclick="fillQ('Giải thích khái niệm X trong tài liệu')"><i class="bi bi-book"></i> Giải thích khái niệm X trong tài liệu</div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    foreach (var msg in Model.CurrentSession.Messages.OrderBy(m => m.Timestamp))
+                    {
+                        if (msg.Role == "User")
+                        {
+                            <div class="msg-user">@msg.Content</div>
+                        }
+                        else
+                        {
+                            <div class="msg-bot">
+                                <div class="bot-header">
+                                    <div class="bot-avatar"><i class="bi bi-stars"></i></div>
+                                    <span class="bot-label">EduChatbot AI</span>
+                                </div>
+                                <div class="bot-content" data-markdown="@msg.Content"></div>
+                                
+                                @if (!string.IsNullOrEmpty(msg.SourceDocuments))
+                                {
+                                    <div class="citations">
+                                        @foreach (var src in msg.SourceDocuments.Split(",", StringSplitOptions.RemoveEmptyEntries))
+                                        {
+                                            <span class="cite-tag"><i class="bi bi-link-45deg"></i> @src.Trim()</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                }
+            </div>
+
+            <div class="input-area">
+                <form asp-action="SendMessage" method="post" id="chatForm">
+                    <input type="hidden" name="subjectId" value="@subjectId" />
+                    <div class="input-box">
+                        <input type="text" name="content" id="chatInput" placeholder="Hỏi về nội dung tài liệu..." required autocomplete="off" />
+                        <button type="submit" class="send-btn" id="sendBtn"><i class="bi bi-arrow-up"></i></button>
+                    </div>
+                    <div class="input-hint"><i class="bi bi-shield-lock me-1"></i>AI chỉ trả lời dựa trên tài liệu đã tải lên. Trích dẫn nguồn tự động.</div>
+                </form>
+            </div>
+        }
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    window.onload = function() {
+        renderExistingBotMessages();
+        checkAiStatus();
+        var box = document.getElementById("chatBox");
+        if (box) {
+            box.style.scrollBehavior = 'auto';
+            box.scrollTop = box.scrollHeight;
+            window.setTimeout(function () { box.style.scrollBehavior = 'smooth'; }, 100);
+        }
+    };
+    function showLoading() {
+        document.getElementById('sendBtn').innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        document.getElementById('sendBtn').classList.add('disabled');
+        document.getElementById('chatInput').readOnly = true;
+    }
+    function fillQ(q) {
+        document.getElementById('chatInput').value = q;
+        document.getElementById('chatInput').focus();
+    }
+
+    const chatForm = document.getElementById('chatForm');
+    const chatBox = document.getElementById('chatBox');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const aiStatus = document.getElementById('aiStatus');
+    let hasIndexedDocs = @((indexedCount > 0).ToString().ToLowerInvariant());
+    let uploadInProgress = false;
+    let aiReady = false;
+
+    function escapeHtml(value) {
+        return String(value || '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    function setAiStatus(state, text) {
+        if (!aiStatus) return;
+        aiStatus.className = `ai-status ${state}`;
+        if (state === 'ready') {
+            aiStatus.innerHTML = `<i class="bi bi-check-circle-fill"></i> ${text}`;
+        } else if (state === 'error') {
+            aiStatus.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${text}`;
+        } else {
+            aiStatus.innerHTML = `<span class="spinner-border spinner-border-sm"></span> ${text}`;
+        }
+    }
+
+    function setChatAvailability(available) {
+        aiReady = available;
+        const canChat = aiReady && hasIndexedDocs && !uploadInProgress;
+        if (!chatInput || !sendBtn) return;
+        chatInput.readOnly = !canChat;
+        chatInput.placeholder = canChat
+            ? 'Hỏi về nội dung tài liệu...'
+            : uploadInProgress
+                ? 'Tài liệu đang được đọc và embedding, chờ hoàn tất...'
+                : !hasIndexedDocs
+                    ? 'Chưa có tài liệu nào index xong...'
+                    : 'AI Engine đang khởi động, chờ một chút...';
+        sendBtn.classList.toggle('disabled', !canChat);
+    }
+
+    async function checkAiStatus(retryCount = 0) {
+        setChatAvailability(false);
+        setAiStatus('starting', retryCount === 0 ? 'AI dang khoi dong' : `Dang kiem tra AI lan ${retryCount + 1}`);
+
+        try {
+            const response = await fetch('/Chat/AiStatus', { headers: { 'Accept': 'application/json' } });
+            const data = await response.json().catch(() => ({}));
+            if (response.ok && data.ready) {
+                setAiStatus('ready', 'AI san sang');
+                setChatAvailability(true);
+                return;
+            }
+
+            throw new Error(data.message || 'AI Engine chua san sang');
+        } catch (error) {
+            if (retryCount < 15) {
+                window.setTimeout(function () { checkAiStatus(retryCount + 1); }, 2000);
+                return;
+            }
+
+            setAiStatus('error', 'AI chua ket noi');
+            setChatAvailability(false);
+        }
+    }
+
+    function inlineMarkdown(value) {
+        return escapeHtml(value)
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/`(.+?)`/g, '<code>$1</code>');
+    }
+
+    function renderMarkdown(value) {
+        const lines = String(value || '').replace(/\r\n/g, '\n').split('\n');
+        const html = [];
+        let listType = null;
+
+        function closeList() {
+            if (listType) {
+                html.push(`</${listType}>`);
+                listType = null;
+            }
+        }
+
+        for (const rawLine of lines) {
+            const line = rawLine.trim();
+            if (!line) {
+                closeList();
+                continue;
+            }
+
+            const heading = line.match(/^###\s+(.+)$/);
+            if (heading) {
+                closeList();
+                html.push(`<h3>${inlineMarkdown(heading[1])}</h3>`);
+                continue;
+            }
+
+            const bullet = line.match(/^[-*]\s+(.+)$/);
+            if (bullet) {
+                if (listType !== 'ul') {
+                    closeList();
+                    html.push('<ul>');
+                    listType = 'ul';
+                }
+                html.push(`<li>${inlineMarkdown(bullet[1])}</li>`);
+                continue;
+            }
+
+            const numbered = line.match(/^\d+[.)]\s+(.+)$/);
+            if (numbered) {
+                if (listType !== 'ol') {
+                    closeList();
+                    html.push('<ol>');
+                    listType = 'ol';
+                }
+                html.push(`<li>${inlineMarkdown(numbered[1])}</li>`);
+                continue;
+            }
+
+            closeList();
+            const cls = html.length === 0 ? ' class="answer-lead"' : '';
+            html.push(`<p${cls}>${inlineMarkdown(line)}</p>`);
+        }
+
+        closeList();
+        return html.join('');
+    }
+
+    function renderExistingBotMessages() {
+        document.querySelectorAll('.bot-content[data-markdown]').forEach(function (node) {
+            node.innerHTML = renderMarkdown(node.getAttribute('data-markdown') || '');
+        });
+    }
+
+    function scrollChatToBottom() {
+        if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function clearWelcome() {
+        const welcome = chatBox ? chatBox.querySelector('.welcome') : null;
+        if (welcome) welcome.remove();
+    }
+
+    function appendUserMessage(text) {
+        clearWelcome();
+        const node = document.createElement('div');
+        node.className = 'msg-user';
+        node.textContent = text;
+        chatBox.appendChild(node);
+        scrollChatToBottom();
+    }
+
+    function appendBotLoading() {
+        const node = document.createElement('div');
+        node.className = 'msg-bot';
+        node.id = 'botLoadingMessage';
+        node.innerHTML = `
+            <div class="bot-header">
+                <div class="bot-avatar"><i class="bi bi-stars"></i></div>
+                <span class="bot-label">EduChatbot AI</span>
+            </div>
+            <div class="bot-content"><span class="spinner-border spinner-border-sm me-2"></span>Dang tim trong tai lieu...</div>`;
+        chatBox.appendChild(node);
+        scrollChatToBottom();
+        return node;
+    }
+
+    function renderCitations(sourceDocuments) {
+        if (!sourceDocuments) return '';
+        const tags = sourceDocuments
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean)
+            .map(s => `<span class="cite-tag"><i class="bi bi-link-45deg"></i> ${escapeHtml(s)}</span>`)
+            .join('');
+        return tags ? `<div class="citations">${tags}</div>` : '';
+    }
+
+    function setBotMessage(node, text, sourceDocuments) {
+        node.innerHTML = `
+            <div class="bot-header">
+                <div class="bot-avatar"><i class="bi bi-stars"></i></div>
+                <span class="bot-label">EduChatbot AI</span>
+            </div>
+            <div class="bot-content">${renderMarkdown(text)}</div>
+            ${renderCitations(sourceDocuments)}`;
+        scrollChatToBottom();
+    }
+
+    function setSending(isSending) {
+        sendBtn.innerHTML = isSending
+            ? '<span class="spinner-border spinner-border-sm"></span>'
+            : '<i class="bi bi-arrow-up"></i>';
+        sendBtn.classList.toggle('disabled', isSending);
+        chatInput.readOnly = isSending;
+    }
+
+    if (chatForm) {
+        chatForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            if (!aiReady) {
+                setAiStatus('starting', 'AI chua san sang');
+                checkAiStatus();
+                return;
+            }
+
+            if (!hasIndexedDocs || uploadInProgress) {
+                const waitingText = uploadInProgress
+                    ? 'Tài liệu vẫn đang được đọc, chia chunk và tạo embedding. Chờ thanh xử lý hoàn tất rồi hỏi lại nhé.'
+                    : 'Môn này chưa có tài liệu nào index xong. Hãy tải tài liệu lên trước.';
+                const loadingNode = appendBotLoading();
+                setBotMessage(loadingNode, waitingText, '');
+                return;
+            }
+
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            const formData = new FormData(chatForm);
+            appendUserMessage(message);
+            chatInput.value = '';
+            setSending(true);
+            const loadingNode = appendBotLoading();
+
+            fetch(chatForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+                .then(async response => {
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Khong nhan duoc phan hoi tu AI.');
+                    }
+                    setBotMessage(loadingNode, data.bot.content, data.bot.sourceDocuments);
+                })
+                .catch(error => {
+                    setBotMessage(loadingNode, error.message || 'Loi ket noi toi AI Engine.', '');
+                })
+                .finally(() => {
+                    setSending(false);
+                    chatInput.focus();
+                });
+        });
+    }
+
+    const uploadFile = document.getElementById('uploadFile');
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const progressFile = document.getElementById('progressFile');
+    const progressPercent = document.getElementById('progressPercent');
+    const progressFill = document.getElementById('progressFill');
+    const progressNote = document.getElementById('progressNote');
+
+    function setUploadProgress(percent, note) {
+        const safePercent = Math.max(0, Math.min(100, Math.round(percent)));
+        progressPercent.textContent = safePercent + '%';
+        progressFill.style.width = safePercent + '%';
+        progressNote.textContent = note;
+    }
+
+    if (uploadFile && uploadForm) {
+        uploadFile.addEventListener('change', function () {
+            if (!uploadFile.files || uploadFile.files.length === 0) return;
+
+            const file = uploadFile.files[0];
+            const formData = new FormData(uploadForm);
+            const xhr = new XMLHttpRequest();
+            let processingTimer = null;
+            let processingStartedAt = 0;
+
+            uploadProgress.classList.add('show');
+            uploadInProgress = true;
+            setChatAvailability(aiReady);
+            progressFill.style.background = 'linear-gradient(90deg, #667eea, #81c995)';
+            progressFile.textContent = file.name;
+            setUploadProgress(0, 'Đang gửi file lên server.');
+
+            xhr.upload.onprogress = function (event) {
+                if (!event.lengthComputable) return;
+                const uploadPercent = (event.loaded / event.total) * 70;
+                setUploadProgress(uploadPercent, 'Đang upload file...');
+            };
+
+            xhr.onloadstart = function () {
+                setUploadProgress(2, 'Đang chuẩn bị upload...');
+            };
+
+            xhr.upload.onload = function () {
+                processingStartedAt = Date.now();
+                setUploadProgress(72, 'Upload xong. Server đang đọc tài liệu, chia chunk và tạo embedding. Bước này có thể mất vài phút với PDF dài.');
+                if (!processingTimer) {
+                    processingTimer = window.setInterval(function () {
+                        const elapsedSeconds = Math.floor((Date.now() - processingStartedAt) / 1000);
+                        const estimatedPercent = Math.min(90, 72 + Math.floor(elapsedSeconds / 8));
+                        setUploadProgress(estimatedPercent, 'Đang embedding trên AI Engine. Nếu PDF dài, hãy chờ tới khi báo hoàn tất.');
+                    }, 2000);
+                }
+            };
+
+            xhr.onload = function () {
+                if (processingTimer) window.clearInterval(processingTimer);
+
+                let result = {};
+                try {
+                    result = JSON.parse(xhr.responseText || '{}');
+                } catch {
+                    result = { message: 'Không đọc được phản hồi từ server.' };
+                }
+
+                if (xhr.status >= 200 && xhr.status < 300 && result.indexed) {
+                    hasIndexedDocs = true;
+                    uploadInProgress = false;
+                    setChatAvailability(aiReady);
+                    setUploadProgress(100, `Hoàn tất: đã đọc ${result.chunks || 0} đoạn nội dung.`);
+                    window.setTimeout(function () {
+                        window.location.href = result.returnUrl || window.location.href;
+                    }, 900);
+                } else {
+                    uploadInProgress = false;
+                    setChatAvailability(aiReady);
+                    progressFill.style.background = '#ea4335';
+                    setUploadProgress(100, result.message || 'Index thất bại. Kiểm tra Python AI Service.');
+                }
+            };
+
+            xhr.onerror = function () {
+                if (processingTimer) window.clearInterval(processingTimer);
+                uploadInProgress = false;
+                setChatAvailability(aiReady);
+                progressFill.style.background = '#ea4335';
+                setUploadProgress(100, 'Không kết nối được server khi upload.');
+            };
+
+            xhr.open('POST', uploadForm.action);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.setRequestHeader('Accept', 'application/json');
+            xhr.send(formData);
+        });
+    }
+    
+    // Xử lý xác nhận xóa tài liệu bằng SweetAlert2
+    function confirmDelete(e, form) {
+        e.preventDefault();
+        Swal.fire({
+            title: 'Xóa tài liệu này?',
+            text: "Bot sẽ không thể trả lời các thông tin từ tài liệu này nữa!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ea4335',
+            cancelButtonColor: '#2a2a2e',
+            confirmButtonText: '<i class="bi bi-trash3"></i> Xóa ngay',
+            cancelButtonText: 'Hủy',
+            background: '#1a1a1e',
+            color: '#e8eaed'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+        return false;
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EduChatbot RBL Experiments</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Segoe UI, Arial, sans-serif; background: #101114; color: #e8eaed; }
+        header { height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; border-bottom: 1px solid #26282f; background: #15161a; }
+        h1 { font-size: 20px; margin: 0; }
+        main { max-width: 1200px; margin: 0 auto; padding: 28px; }
+        .muted { color: #9aa0a6; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .panel { background: #181a20; border: 1px solid #2a2d36; border-radius: 8px; padding: 18px; }
+        .panel h2 { font-size: 16px; margin: 0 0 14px; }
+        .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+        label { display: block; font-size: 12px; color: #9aa0a6; margin-bottom: 6px; }
+        select, input { background: #101114; color: #e8eaed; border: 1px solid #343844; border-radius: 6px; padding: 9px 10px; min-width: 120px; }
+        button { border: 0; border-radius: 6px; padding: 10px 16px; background: #6d7cff; color: white; font-weight: 600; cursor: pointer; }
+        button:disabled { opacity: .55; cursor: wait; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+        th, td { border-bottom: 1px solid #2a2d36; padding: 10px; text-align: left; vertical-align: top; }
+        th { color: #9aa0a6; font-size: 12px; text-transform: uppercase; }
+        .status { margin-left: 10px; color: #9aa0a6; font-size: 13px; }
+        .test-item { padding: 10px 0; border-bottom: 1px solid #252832; font-size: 13px; }
+        .score { font-weight: 700; color: #8fd694; }
+        canvas { max-height: 330px; }
+        @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>EduChatbot RBL Experiments</h1>
+        <span class="muted">Research-based learning module, chạy riêng khỏi chatbot</span>
+    </header>
+    <main>
+        <section class="panel">
+            <h2>Cấu hình thực nghiệm</h2>
+            <div class="controls">
+                <div>
+                    <label>Loại benchmark</label>
+                    <select id="benchType">
+                        <option value="embedding">Embedding models</option>
+                        <option value="chunking">Chunking strategies</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Subject ID</label>
+                    <input id="subjectId" type="number" value="1" />
+                </div>
+                <div>
+                    <label>Số câu hỏi</label>
+                    <select id="maxQ">
+                        <option value="5">5 câu</option>
+                        <option value="10" selected>10 câu</option>
+                        <option value="25">25 câu</option>
+                        <option value="50">50 câu</option>
+                    </select>
+                </div>
+                <button id="runBtn" onclick="runBenchmark()">Chạy benchmark</button>
+                <span class="status" id="status">Sẵn sàng</span>
+            </div>
+        </section>
+
+        <section class="grid" style="margin-top:18px">
+            <div class="panel">
+                <h2>Bảng số liệu RAGAS benchmark</h2>
+                <div id="results">Chưa có dữ liệu.</div>
+                <button onclick="loadResults()" style="margin-top:12px;background:#2b2f3a">Tải kết quả gần nhất</button>
+            </div>
+            <div class="panel">
+                <h2>Biểu đồ so sánh</h2>
+                <canvas id="chart"></canvas>
+            </div>
+        </section>
+
+        <section class="panel" style="margin-top:18px">
+            <h2>Test set 50 câu hỏi + ground truth</h2>
+            <div id="testSet" class="muted">Đang tải...</div>
+        </section>
+    </main>
+
+    <script>
+        let chart;
+
+        async function runBenchmark() {
+            const button = document.getElementById('runBtn');
+            const status = document.getElementById('status');
+            button.disabled = true;
+            status.textContent = 'Đang chạy, có thể mất vài phút...';
+            try {
+                const response = await fetch('/api/benchmark/run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        benchmark_type: document.getElementById('benchType').value,
+                        subject_id: Number(document.getElementById('subjectId').value),
+                        max_questions: Number(document.getElementById('maxQ').value)
+                    })
+                });
+                const json = await response.json();
+                if (json.status !== 'success') throw new Error(json.message || 'Benchmark failed');
+                renderResults(json.data);
+                status.textContent = 'Hoàn tất';
+            } catch (error) {
+                status.textContent = error.message;
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        async function loadResults() {
+            const response = await fetch('/api/benchmark/results');
+            const json = await response.json();
+            const data = json.data || {};
+            renderResults(data.embedding_benchmark || data.chunking_benchmark);
+        }
+
+        function metric(value) {
+            return `<span class="score">${Number(value || 0).toFixed(4)}</span>`;
+        }
+
+        function renderResults(data) {
+            if (!data || !data.results) {
+                document.getElementById('results').textContent = 'Chưa có kết quả benchmark.';
+                return;
+            }
+            const isEmbedding = data.benchmark_type === 'embedding_models';
+            const labels = [];
+            const context = [];
+            const answer = [];
+            const faithful = [];
+            let html = '<table><thead><tr><th>Tên</th><th>Context</th><th>Answer</th><th>Faithfulness</th><th>Time</th></tr></thead><tbody>';
+            for (const item of Object.values(data.results)) {
+                const name = isEmbedding ? item.model_name : item.strategy_name;
+                labels.push(name);
+                context.push(item.avg_context_relevancy || 0);
+                answer.push(item.avg_answer_similarity || 0);
+                faithful.push(item.avg_faithfulness || 0);
+                html += `<tr><td><b>${name}</b></td><td>${metric(item.avg_context_relevancy)}</td><td>${metric(item.avg_answer_similarity)}</td><td>${metric(item.avg_faithfulness)}</td><td>${item.total_time || 0}s</td></tr>`;
+            }
+            html += '</tbody></table>';
+            document.getElementById('results').innerHTML = html;
+            renderChart(labels, context, answer, faithful);
+        }
+
+        function renderChart(labels, context, answer, faithful) {
+            if (chart) chart.destroy();
+            chart = new Chart(document.getElementById('chart'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Context relevancy', data: context, backgroundColor: '#6d7cff' },
+                        { label: 'Answer similarity', data: answer, backgroundColor: '#8fd694' },
+                        { label: 'Faithfulness', data: faithful, backgroundColor: '#f2c078' }
+                    ]
+                },
+                options: { responsive: true, scales: { y: { min: 0, max: 1 } } }
+            });
+        }
+
+        async function loadTestSet() {
+            const response = await fetch('/api/benchmark/test-set');
+            const json = await response.json();
+            const items = (json.data || []).slice(0, 10);
+            document.getElementById('testSet').innerHTML = items.map((item, index) =>
+                `<div class="test-item"><b>#${index + 1}</b> ${item.question}<br><span class="muted">${item.ground_truth}</span></div>`
+            ).join('');
+        }
+
+        loadTestSet();
+    </script>
+</body>
+</html>
