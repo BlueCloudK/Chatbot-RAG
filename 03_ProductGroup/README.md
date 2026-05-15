@@ -1,10 +1,10 @@
 # EduChatbot.ProductGroup
 
-Day la ban ProductGroup cua EduChatbot. Project nay dung Razor Pages va co cung day du chuc nang voi hai ban con lai, dong thoi giu dashboard/SignalR/Worker Service de demo nhom.
+This is the ProductGroup version of EduChatbot. It uses Razor Pages and includes the full feature set from the other two variants, plus dashboard, SignalR, and Worker Service demo features for the group/product requirement.
 
 ## Solution
 
-Mo solution:
+Open this solution:
 
 ```text
 EduChatbot.Group.sln
@@ -16,7 +16,7 @@ Startup project:
 EduChatbot.ProductGroup
 ```
 
-URL mac dinh:
+Default URL:
 
 ```text
 http://localhost:5102
@@ -28,68 +28,70 @@ Dashboard:
 http://localhost:5102/Dashboard
 ```
 
-## Chuc nang nen
+## Core Features
 
-- Quan ly mon hoc.
-- Upload PDF, DOCX, PPT, PPTX.
-- Goi `AiService` de chunk va embed tai lieu.
-- Chat hoi dap theo tai lieu da index.
-- Luu lich su chat.
+- Subject management.
+- Upload PDF, DOCX, PPT, and PPTX files.
+- Call `AiService` to chunk and embed documents.
+- Chat and Q&A over indexed documents.
+- Chat history.
 
-## Chuc nang rieng
+## Group/Product Features
 
-- SignalR realtime hub tai `/hubs/product`.
-- Them/sua/xoa mon hoc co hien realtime.
-- Upload/index/xoa tai lieu day event realtime len dashboard.
-- Chatbot tra loi xong day event realtime len dashboard.
-- Worker Service `ProductWorkerService` chay nen va gui heartbeat dinh ky.
-- Dashboard tong quan trang thai AI, so mon, so tai lieu, so tin nhan va live feed.
+- SignalR realtime hub at `/hubs/product`.
+- Realtime subject create/update/delete events.
+- Realtime document upload, index success/failure, and delete events on the dashboard.
+- Realtime chatbot reply events on the dashboard.
+- Background `ProductWorkerService` heartbeat.
+- Dashboard showing AI status, subject count, document count, message count, and a live feed.
 
-## Cau truc
+## Structure
 
 ```text
-EduChatbot.ProductGroup/
-|-- Hubs/
-|   `-- ProductHub.cs
-|-- Services/
-|   |-- ProductActivityFeed.cs
-|   |-- ProductRealtimeNotifier.cs
-|   |-- ProductWorkerService.cs
-|   `-- PythonAIServiceRunner.cs
-|-- Pages/
-|   |-- Chat/
-|   |-- Subjects/
-|   |-- Dashboard.cshtml
-|   `-- Index.cshtml
-|-- Models/
-|-- Data/
-|-- wwwroot/
-`-- Program.cs
-AiService/
-RblService/
+03_ProductGroup/
+|-- EduChatbot.Group.sln
+|-- EduChatbot.ProductGroup/
+|   |-- Hubs/
+|   |   `-- ProductHub.cs
+|   |-- Services/
+|   |   |-- ProductActivityFeed.cs
+|   |   |-- ProductRealtimeNotifier.cs
+|   |   |-- ProductWorkerService.cs
+|   |   `-- PythonAIServiceRunner.cs
+|   |-- Pages/
+|   |   |-- Chat/
+|   |   |-- Subjects/
+|   |   |-- Dashboard.cshtml
+|   |   `-- Index.cshtml
+|   |-- Models/
+|   |-- Data/
+|   |-- wwwroot/
+|   `-- Program.cs
+|-- AiService/
+`-- RblService/
 ```
 
-## Chay
+## Run
 
-1. Cai dependencies cho `AiService`:
+1. Install dependencies for `AiService`:
 
 ```powershell
 cd D:\Project\PRN222\03_ProductGroup\AiService
 pip install -r requirements.txt
 ```
 
-2. Cai model Ollama:
+2. Install the Ollama model:
 
 ```powershell
 ollama pull qwen2.5:3b
 ```
 
-3. Mo `EduChatbot.Group.sln` bang Visual Studio 2022 va bam `F5`.
+3. Open `EduChatbot.Group.sln` in Visual Studio 2022 and press `F5`.
 
-4. Mo dashboard:
+4. Open the dashboard:
 
 ```text
 http://localhost:5102/Dashboard
 ```
 
-Neu SignalR hoat dong, dashboard se hien `SignalR online` va live feed se nhan event tu CRUD/chat/upload/worker.
+When SignalR is working, the dashboard shows `SignalR online` and the live feed receives events from CRUD actions, chat, upload/indexing, and the worker service.

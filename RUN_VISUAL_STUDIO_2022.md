@@ -1,73 +1,72 @@
-# Chay du an bang Visual Studio 2022
+# Running the Project with Visual Studio 2022
 
-Co 3 solution rieng de mo bang Visual Studio 2022:
+There are three separate solutions that can be opened with Visual Studio 2022:
 
-- `01_MVC/EduChatbot.MVC.sln`: ban chatbot MVC.
-- `02_RazorPages/EduChatbot.RazorPages.sln`: ban Razor Pages.
-- `03_ProductGroup/EduChatbot.Group.sln`: ban ProductGroup bang Razor Pages.
+- `01_MVC/EduChatbot.MVC.sln`: MVC chatbot version.
+- `02_RazorPages/EduChatbot.RazorPages.sln`: Razor Pages version.
+- `03_ProductGroup/EduChatbot.Group.sln`: ProductGroup Razor Pages version.
 
-Ca 3 ban deu co quan ly mon, upload/index tai lieu, chat RAG, dashboard, SignalR realtime va Worker Service.
+All three variants include subject management, document upload/indexing, RAG chat, a dashboard, SignalR realtime updates, and a background Worker Service.
 
-Neu chi can chay san pham chinh, mo `01_MVC/EduChatbot.MVC.sln`. Neu can demo ba cau truc, mo tung solution rieng:
+If you only need to run the main product, open `01_MVC/EduChatbot.MVC.sln`. If you need to demo all three structures, open each solution separately:
 
 - MVC: `01_MVC/EduChatbot.MVC.sln`, port `5099`
 - Razor Pages: `02_RazorPages/EduChatbot.RazorPages.sln`, port `5101`
 - ProductGroup: `03_ProductGroup/EduChatbot.Group.sln`, port `5102`
 
-## Dashboard, SignalR va Worker Service
+## Dashboard, SignalR, and Worker Service
 
-Ca 3 solution deu demo cac phan sau:
+Each solution demonstrates:
 
-- SignalR hub: `/hubs/product`
-- Realtime CRUD mon hoc: them/sua/xoa se hien trong trang `Subjects` va `Dashboard`
-- Realtime tai lieu/chat: upload, index xong/loi, xoa tai lieu, chatbot tra loi se day event len dashboard
-- Worker Service: `ProductWorkerService` chay nen va gui heartbeat dinh ky len SignalR feed
+- SignalR hub at `/hubs/product`.
+- Realtime subject CRUD events shown on the `Subjects` page and `Dashboard`.
+- Realtime document/chat events for upload, index success/failure, document deletion, and chatbot replies.
+- `ProductWorkerService`, which runs in the background and sends heartbeat events to the SignalR feed.
 - MVC Dashboard: `http://localhost:5099/Dashboard`
 - Razor Pages Dashboard: `http://localhost:5101/Dashboard`
 - ProductGroup Dashboard: `http://localhost:5102/Dashboard`
 
-## Cau truc can quan tam
+## Important Structure
 
-- `01_MVC`: goi MVC doc lap, co `EduChatbot.MVC.sln`, `EduChatbot.Web`, `AiService`, `RblService`.
-- `02_RazorPages`: goi Razor Pages doc lap, co `EduChatbot.RazorPages.sln`, web app, `AiService`, `RblService`.
-- `03_ProductGroup`: goi ProductGroup doc lap, co `EduChatbot.Group.sln`, web app, `AiService`, `RblService`.
-- `AiService` trong tung folder: FastAPI service cho RAG, upload/index va chat.
-- `RblService` trong tung folder: FastAPI project rieng cho module nghien cuu RBL/benchmark, chay o port 8010.
-- `temp_open_notebook`: chi de tham khao opensource, khong can chay trong Visual Studio.
+- `01_MVC`: standalone MVC package with `EduChatbot.MVC.sln`, `EduChatbot.Web`, `AiService`, and `RblService`.
+- `02_RazorPages`: standalone Razor Pages package with `EduChatbot.RazorPages.sln`, the web app, `AiService`, and `RblService`.
+- `03_ProductGroup`: standalone ProductGroup package with `EduChatbot.Group.sln`, the web app, `AiService`, and `RblService`.
+- `AiService` inside each folder: FastAPI service for RAG, upload/indexing, and chat.
+- `RblService` inside each folder: FastAPI service for the RBL/benchmark module, running on port `8010`.
 
-## Chuan bi mot lan
+## One-Time Setup
 
-1. Cai .NET SDK phu hop voi `TargetFramework` trong `01_MVC/EduChatbot.Web/EduChatbot.Web.csproj`.
-2. Cai Python dependencies:
+1. Install a .NET SDK compatible with the project target framework. The web projects currently target `net8.0`.
+2. Install Python dependencies. Example for MVC:
 
 ```powershell
 cd D:\Project\PRN222\01_MVC\AiService
 pip install -r requirements.txt
 ```
 
-3. Tao database LocalDB:
+3. Create/update the LocalDB database:
 
 ```powershell
 cd D:\Project\PRN222
 dotnet ef database update --project 01_MVC\EduChatbot.Web\EduChatbot.Web.csproj
 ```
 
-4. Cai Ollama va model local:
+4. Install Ollama and a local model:
 
 ```powershell
-ollama pull qwen2:1.5b
+ollama pull qwen2.5:3b
 ```
 
-## Chay trong Visual Studio
+## Run in Visual Studio
 
-1. Mo `01_MVC\EduChatbot.MVC.sln`.
-2. Right click `EduChatbot.Web` -> `Set as Startup Project`.
-3. Chon launch profile `http`.
-4. Bam `F5` hoac `Ctrl+F5`.
-5. Web se mo tai `http://localhost:5099`.
-6. Python AI service se duoc web app tu khoi dong tai `http://127.0.0.1:8000`.
+1. Open `01_MVC\EduChatbot.MVC.sln`.
+2. Right-click `EduChatbot.Web` and select `Set as Startup Project`.
+3. Choose the `http` launch profile.
+4. Press `F5` or `Ctrl+F5`.
+5. The web app opens at `http://localhost:5099`.
+6. The Python AI service is started automatically at `http://127.0.0.1:8000`.
 
-Neu Python khong nam trong PATH, sua:
+If Python is not available in `PATH`, update this setting:
 
 ```json
 "AiService": {
@@ -76,13 +75,12 @@ Neu Python khong nam trong PATH, sua:
 }
 ```
 
-trong `01_MVC\EduChatbot.Web\appsettings.Development.json`.
+in `01_MVC\EduChatbot.Web\appsettings.Development.json`.
 
-## Test nhanh
+## Quick Test
 
 - Web: `http://localhost:5099`
-- RBL dashboard: chay project `RblService`, sau do mo `http://127.0.0.1:8010`
+- RBL dashboard: run the `RblService` project, then open `http://127.0.0.1:8010`
 - AI health check: `http://127.0.0.1:8000`
 
-Neu upload/chat loi, xem Output window cua Visual Studio. Log cua Python AI service se hien voi prefix `[AiService]`.
-Neu benchmark loi, chay rieng `RblService` va xem terminal/output cua project do.
+If upload or chat fails, check the Visual Studio Output window. Python AI logs use the `[AiService]` prefix. If benchmarking fails, run `RblService` separately and check its terminal/output logs.

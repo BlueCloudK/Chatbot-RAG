@@ -1,13 +1,13 @@
 # EduChatbot.Web - MVC
 
-Day la ban EduChatbot dung ASP.NET Core MVC.
+This is the ASP.NET Core MVC web application for EduChatbot.
 
 ## Solution
 
-Mo solution:
+Open the parent solution:
 
 ```text
-EduChatbot.MVC.sln
+..\EduChatbot.MVC.sln
 ```
 
 Startup project:
@@ -16,25 +16,25 @@ Startup project:
 EduChatbot.Web
 ```
 
-URL mac dinh:
+Default URL:
 
 ```text
 http://localhost:5099
 ```
 
-## Chuc nang
+## Features
 
-- Quan ly mon hoc.
-- Upload PDF, DOCX, PPT, PPTX.
-- Goi `AiService` de chunk va embed tai lieu.
-- Chat hoi dap theo tai lieu da index.
-- Trich dan nguon tai lieu.
-- Luu lich su chat.
-- Dashboard tong quan.
-- SignalR realtime cho CRUD/upload/chat.
-- Worker Service gui heartbeat dinh ky.
+- Subject management.
+- Upload PDF, DOCX, PPT, and PPTX files.
+- Call `AiService` to chunk and embed documents.
+- Chat and Q&A over indexed documents.
+- Source citation from uploaded documents.
+- Chat history.
+- Overview dashboard.
+- SignalR realtime updates for CRUD, upload, and chat events.
+- Background Worker Service heartbeat.
 
-## Cau truc
+## Structure
 
 ```text
 EduChatbot.Web/
@@ -47,24 +47,24 @@ EduChatbot.Web/
 `-- Program.cs
 ```
 
-## Chay
+## Run
 
-1. Cai dependencies cho `AiService`:
+1. Install dependencies for the sibling `AiService`:
 
 ```powershell
-cd D:\Project\PRN222\AiService
+cd D:\Project\PRN222\01_MVC\AiService
 pip install -r requirements.txt
 ```
 
-2. Cai model Ollama:
+2. Install the Ollama model:
 
 ```powershell
 ollama pull qwen2.5:3b
 ```
 
-3. Mo `EduChatbot.MVC.sln` bang Visual Studio 2022 va bam `F5`.
+3. Open `..\EduChatbot.MVC.sln` in Visual Studio 2022 and press `F5`.
 
-Web app se tu khoi dong Python AI service tai `http://127.0.0.1:8000`.
+The web app automatically starts the local Python AI service at `http://127.0.0.1:8000`.
 
 Dashboard:
 

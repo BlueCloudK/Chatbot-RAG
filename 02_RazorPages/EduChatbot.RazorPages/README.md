@@ -1,13 +1,13 @@
 # EduChatbot.RazorPages
 
-Day la ban EduChatbot dung ASP.NET Core Razor Pages. Chuc nang nen giong ban MVC, nhung logic duoc dat trong tung PageModel thay vi controller.
+This is the ASP.NET Core Razor Pages web application for EduChatbot. It provides the same core features as the MVC version, but places page logic in PageModel classes instead of controllers.
 
 ## Solution
 
-Mo solution:
+Open the parent solution:
 
 ```text
-EduChatbot.RazorPages.sln
+..\EduChatbot.RazorPages.sln
 ```
 
 Startup project:
@@ -16,24 +16,24 @@ Startup project:
 EduChatbot.RazorPages
 ```
 
-URL mac dinh:
+Default URL:
 
 ```text
 http://localhost:5101
 ```
 
-## Chuc nang
+## Features
 
-- Quan ly mon hoc bang Razor Pages.
-- Upload PDF, DOCX, PPT, PPTX.
-- Goi `AiService` de chunk va embed tai lieu.
-- Chat hoi dap theo tai lieu da index.
-- Luu lich su chat.
-- Dashboard tong quan.
-- SignalR realtime cho CRUD/upload/chat.
-- Worker Service gui heartbeat dinh ky.
+- Subject management with Razor Pages.
+- Upload PDF, DOCX, PPT, and PPTX files.
+- Call `AiService` to chunk and embed documents.
+- Chat and Q&A over indexed documents.
+- Chat history.
+- Overview dashboard.
+- SignalR realtime updates for CRUD, upload, and chat events.
+- Background Worker Service heartbeat.
 
-## Cau truc
+## Structure
 
 ```text
 EduChatbot.RazorPages/
@@ -48,24 +48,24 @@ EduChatbot.RazorPages/
 `-- Program.cs
 ```
 
-## Chay
+## Run
 
-1. Cai dependencies cho `AiService`:
+1. Install dependencies for the sibling `AiService`:
 
 ```powershell
-cd D:\Project\PRN222\AiService
+cd D:\Project\PRN222\02_RazorPages\AiService
 pip install -r requirements.txt
 ```
 
-2. Cai model Ollama:
+2. Install the Ollama model:
 
 ```powershell
 ollama pull qwen2.5:3b
 ```
 
-3. Mo `EduChatbot.RazorPages.sln` bang Visual Studio 2022 va bam `F5`.
+3. Open `..\EduChatbot.RazorPages.sln` in Visual Studio 2022 and press `F5`.
 
-Web app se tu khoi dong Python AI service tai `http://127.0.0.1:8000`.
+The web app automatically starts the local Python AI service at `http://127.0.0.1:8000`.
 
 Dashboard:
 
