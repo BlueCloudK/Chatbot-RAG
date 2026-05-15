@@ -1,4 +1,5 @@
-using EduChatbot.RazorPages.Data;
+﻿using EduChatbot.RazorPages.Data;
+using EduChatbot.RazorPages.Hubs;
 using EduChatbot.RazorPages.Models;
 using EduChatbot.RazorPages.Services;
 using Microsoft.Data.SqlClient;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
+builder.Services.AddSignalR();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -17,17 +19,19 @@ builder.Services.AddHttpClient("AiService", client =>
 });
 
 builder.Services.AddHostedService<PythonAIServiceRunner>();
+builder.Services.AddSingleton<ProductActivityFeed>();
+builder.Services.AddSingleton<ProductRealtimeNotifier>();
+builder.Services.AddHostedService<ProductWorkerService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
 }
 
 app.UseRouting();
-
+app.UseStaticFiles();
 app.UseAuthorization();
 
 using (var scope = app.Services.CreateScope())
@@ -38,9 +42,8 @@ using (var scope = app.Services.CreateScope())
     SeedSubjects(db);
 }
 
-app.MapStaticAssets();
-app.MapRazorPages()
-   .WithStaticAssets();
+app.MapHub<ProductHub>("/hubs/product");
+app.MapRazorPages();
 
 app.Run();
 
@@ -62,7 +65,6 @@ IF COL_LENGTH('Documents', 'ChunkCount') IS NULL
     }
     catch (SqlException)
     {
-        // The first run can race with LocalDB startup in Visual Studio; normal EF errors still surface later.
     }
 }
 
@@ -76,3 +78,4 @@ static void SeedSubjects(ApplicationDbContext db)
         new Subject { Name = "Algorithms", Code = "ALG" });
     db.SaveChanges();
 }
+

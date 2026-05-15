@@ -29,6 +29,9 @@ http://localhost:5101
 - Goi `AiService` de chunk va embed tai lieu.
 - Chat hoi dap theo tai lieu da index.
 - Luu lich su chat.
+- Dashboard tong quan.
+- SignalR realtime cho CRUD/upload/chat.
+- Worker Service gui heartbeat dinh ky.
 
 ## Cau truc
 
@@ -63,3 +66,9 @@ ollama pull qwen2.5:3b
 3. Mo `EduChatbot.RazorPages.sln` bang Visual Studio 2022 va bam `F5`.
 
 Web app se tu khoi dong Python AI service tai `http://127.0.0.1:8000`.
+
+Dashboard:
+
+```text
+http://localhost:5101/Dashboard
+```

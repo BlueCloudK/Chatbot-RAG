@@ -1,7 +1,8 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using EduChatbot.RazorPages.Data;
 using EduChatbot.RazorPages.Models;
+using EduChatbot.RazorPages.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -13,12 +14,14 @@ public class IndexModel : PageModel
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _environment;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ProductRealtimeNotifier _notifier;
 
-    public IndexModel(ApplicationDbContext context, IWebHostEnvironment environment, IHttpClientFactory httpClientFactory)
+    public IndexModel(ApplicationDbContext context, IWebHostEnvironment environment, IHttpClientFactory httpClientFactory, ProductRealtimeNotifier notifier)
     {
         _context = context;
         _environment = environment;
         _httpClientFactory = httpClientFactory;
+        _notifier = notifier;
     }
 
     public Subject CurrentSubject { get; private set; } = new();
@@ -114,6 +117,11 @@ public class IndexModel : PageModel
         var botMsg = new ChatMessage { SessionId = session.Id, Role = "Bot", Content = answer, SourceDocuments = sourceDocs, Timestamp = DateTime.UtcNow };
         _context.ChatMessages.AddRange(userMsg, botMsg);
         await _context.SaveChangesAsync();
+        await _notifier.PublishAsync(
+            "ChatAnswered",
+            "Chatbot tra loi",
+            $"Da tra loi cau hoi trong mon #{subjectId}.",
+            new { subjectId, userMessageId = userMsg.Id, botMessageId = botMsg.Id });
 
         return new JsonResult(new
         {
@@ -155,6 +163,11 @@ public class IndexModel : PageModel
         };
         _context.Documents.Add(document);
         await _context.SaveChangesAsync();
+        await _notifier.PublishAsync(
+            "DocumentUploaded",
+            "Tai lieu moi",
+            $"Dang index {document.FileName}.",
+            new { subjectId, document.Id, document.FileName });
 
         try
         {
@@ -192,6 +205,12 @@ public class IndexModel : PageModel
         }
 
         await _context.SaveChangesAsync();
+        await _notifier.PublishAsync(
+            document.IsIndexed ? "DocumentIndexed" : "DocumentFailed",
+            document.IsIndexed ? "Index xong" : "Index loi",
+            $"{document.FileName}: {document.IndexMessage}",
+            new { subjectId, document.Id, document.FileName, document.IsIndexed, document.ChunkCount });
+
         return new JsonResult(new
         {
             status = document.IndexStatus,
@@ -225,6 +244,11 @@ public class IndexModel : PageModel
 
             _context.Documents.Remove(document);
             await _context.SaveChangesAsync();
+            await _notifier.PublishAsync(
+                "DocumentDeleted",
+                "Xoa tai lieu",
+                $"Da xoa {document.FileName}.",
+                new { subjectId, document.Id, document.FileName });
         }
 
         return RedirectToPage(new { subjectId });
@@ -260,3 +284,5 @@ public class IndexModel : PageModel
         return true;
     }
 }
+
+

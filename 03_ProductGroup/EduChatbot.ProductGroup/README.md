@@ -1,6 +1,6 @@
 # EduChatbot.ProductGroup
 
-Day la ban ProductGroup cua EduChatbot. Project nay van dung Razor Pages va giu chuc nang chatbot/tai lieu, nhung co them cac feature rieng de demo nhom.
+Day la ban ProductGroup cua EduChatbot. Project nay dung Razor Pages va co cung day du chuc nang voi hai ban con lai, dong thoi giu dashboard/SignalR/Worker Service de demo nhom.
 
 ## Solution
 

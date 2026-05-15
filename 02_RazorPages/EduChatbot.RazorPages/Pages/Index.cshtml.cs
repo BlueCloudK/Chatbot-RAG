@@ -1,4 +1,4 @@
-using EduChatbot.RazorPages.Data;
+﻿using EduChatbot.RazorPages.Data;
 using EduChatbot.RazorPages.Models;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -24,3 +24,4 @@ public class IndexModel : PageModel
             .ToListAsync();
     }
 }
+

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using EduChatbot.Web.Data;
 using EduChatbot.Web.Models;
 using EduChatbot.Web.Models.ViewModels;
+using EduChatbot.Web.Services;
 
 namespace EduChatbot.Web.Controllers
 {
@@ -14,11 +15,13 @@ namespace EduChatbot.Web.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ProductRealtimeNotifier _notifier;
 
-        public ChatController(ApplicationDbContext context, IHttpClientFactory httpClientFactory)
+        public ChatController(ApplicationDbContext context, IHttpClientFactory httpClientFactory, ProductRealtimeNotifier notifier)
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
+            _notifier = notifier;
         }
 
         // GET: /Chat?subjectId=3
@@ -197,6 +200,11 @@ namespace EduChatbot.Web.Controllers
             _context.ChatMessages.Add(userMsg);
             _context.ChatMessages.Add(botMsg);
             await _context.SaveChangesAsync();
+            await _notifier.PublishAsync(
+                "ChatAnswered",
+                "Chatbot tra loi",
+                $"Da tra loi cau hoi trong mon #{subjectId}.",
+                new { subjectId, userMessageId = userMsg.Id, botMessageId = botMsg.Id });
 
             if (IsAjaxRequest())
             {

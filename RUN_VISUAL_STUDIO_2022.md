@@ -2,9 +2,11 @@
 
 Co 3 solution rieng de mo bang Visual Studio 2022:
 
-- `EduChatbot.MVC.sln`: ban chatbot MVC chinh hien tai.
-- `EduChatbot.RazorPages.sln`: ban Razor Pages rieng, cung chuc nang nen voi MVC.
-- `EduChatbot.Group.sln`: ban ProductGroup bang Razor Pages, cung chuc nang nen va them SignalR + Worker Service + dashboard/demo nhom.
+- `EduChatbot.MVC.sln`: ban chatbot MVC.
+- `EduChatbot.RazorPages.sln`: ban Razor Pages.
+- `EduChatbot.Group.sln`: ban ProductGroup bang Razor Pages.
+
+Ca 3 ban deu co quan ly mon, upload/index tai lieu, chat RAG, dashboard, SignalR realtime va Worker Service.
 
 Neu chi can chay san pham chinh, mo `EduChatbot.MVC.sln`. Neu can demo ba cau truc, mo tung solution rieng:
 
@@ -12,21 +14,23 @@ Neu chi can chay san pham chinh, mo `EduChatbot.MVC.sln`. Neu can demo ba cau tr
 - Razor Pages: `EduChatbot.RazorPages.sln`, port `5101`
 - ProductGroup: `EduChatbot.Group.sln`, port `5102`
 
-## Rieng ban ProductGroup
+## Dashboard, SignalR va Worker Service
 
-Ban `EduChatbot.Group.sln` demo them cac phan sau:
+Ca 3 solution deu demo cac phan sau:
 
 - SignalR hub: `/hubs/product`
 - Realtime CRUD mon hoc: them/sua/xoa se hien trong trang `Subjects` va `Dashboard`
 - Realtime tai lieu/chat: upload, index xong/loi, xoa tai lieu, chatbot tra loi se day event len dashboard
 - Worker Service: `ProductWorkerService` chay nen va gui heartbeat dinh ky len SignalR feed
-- Dashboard: `http://localhost:5102/Dashboard`
+- MVC Dashboard: `http://localhost:5099/Dashboard`
+- Razor Pages Dashboard: `http://localhost:5101/Dashboard`
+- ProductGroup Dashboard: `http://localhost:5102/Dashboard`
 
 ## Cau truc can quan tam
 
 - `01_MVC/EduChatbot.Web`: ASP.NET Core MVC web app. Day la startup project cua `EduChatbot.MVC.sln`.
-- `02_RazorPages/EduChatbot.RazorPages`: ASP.NET Core Razor Pages project rieng, co quan ly mon, upload/index va chat.
-- `03_ProductGroup/EduChatbot.ProductGroup`: ASP.NET Core Razor Pages product/group app, co them dashboard van hanh, SignalR realtime va Worker Service.
+- `02_RazorPages/EduChatbot.RazorPages`: ASP.NET Core Razor Pages project rieng.
+- `03_ProductGroup/EduChatbot.ProductGroup`: ASP.NET Core Razor Pages product/group app.
 - `AiService`: FastAPI service cho RAG, upload/index va chat.
 - `RblService`: FastAPI project rieng cho module nghien cuu RBL/benchmark, chay o port 8010.
 - `temp_open_notebook`: chi de tham khao opensource, khong can chay trong Visual Studio.

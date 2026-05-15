@@ -31,6 +31,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
+app.UseStaticFiles();
 app.UseAuthorization();
 
 using (var scope = app.Services.CreateScope())
@@ -41,10 +42,8 @@ using (var scope = app.Services.CreateScope())
     SeedSubjects(db);
 }
 
-app.MapStaticAssets();
 app.MapHub<ProductHub>("/hubs/product");
-app.MapRazorPages()
-   .WithStaticAssets();
+app.MapRazorPages();
 
 app.Run();
 

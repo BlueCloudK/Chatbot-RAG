@@ -8,7 +8,7 @@ EduChatbot la repo demo he thong hoi dap tai lieu hoc tap bang RAG. Repo nay gom
 | --- | --- | --- | --- |
 | MVC | `EduChatbot.MVC.sln` | `5099` | Ban ASP.NET Core MVC: controllers, views, models. |
 | Razor Pages | `EduChatbot.RazorPages.sln` | `5101` | Ban Razor Pages cung chuc nang nen voi MVC. |
-| ProductGroup | `EduChatbot.Group.sln` | `5102` | Ban Razor Pages mo rong: SignalR realtime, Worker Service, dashboard. |
+| ProductGroup | `EduChatbot.Group.sln` | `5102` | Ban Razor Pages mo rong cho nhom, cung day du feature. |
 
 Ca 3 ban deu dung chung `AiService` de upload, chunk, embed va chat voi tai lieu.
 
@@ -20,7 +20,7 @@ Ca 3 ban deu dung chung `AiService` de upload, chunk, embed va chat voi tai lieu
 - Chat hoi dap trong pham vi tai lieu da index.
 - Trich dan nguon tai lieu.
 - Luu lich su chat theo mon/phien.
-- ProductGroup co them SignalR realtime va Worker Service.
+- Ca 3 ban deu co Dashboard, SignalR realtime va Worker Service.
 
 ## Cau truc repo
 
@@ -45,7 +45,7 @@ PRN222/
 ## Yeu cau moi truong
 
 - Visual Studio 2022.
-- .NET SDK tuong thich voi `net10.0`.
+- .NET SDK 8.0 tro len. Cac web project dang target `net8.0` de chay on dinh tren Visual Studio 2022.
 - SQL Server LocalDB.
 - Python 3.10+.
 - Ollama.
@@ -91,6 +91,8 @@ Moi ban web se tu khoi dong `AiService` o `http://127.0.0.1:8000` neu service ch
 - MVC: `http://localhost:5099`
 - Razor Pages: `http://localhost:5101`
 - ProductGroup: `http://localhost:5102`
+- MVC dashboard: `http://localhost:5099/Dashboard`
+- Razor Pages dashboard: `http://localhost:5101/Dashboard`
 - ProductGroup dashboard: `http://localhost:5102/Dashboard`
 - AI health check: `http://127.0.0.1:8000`
 - RBL dashboard: `http://127.0.0.1:8010`

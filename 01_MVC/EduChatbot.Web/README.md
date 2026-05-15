@@ -30,6 +30,9 @@ http://localhost:5099
 - Chat hoi dap theo tai lieu da index.
 - Trich dan nguon tai lieu.
 - Luu lich su chat.
+- Dashboard tong quan.
+- SignalR realtime cho CRUD/upload/chat.
+- Worker Service gui heartbeat dinh ky.
 
 ## Cau truc
 
@@ -62,3 +65,9 @@ ollama pull qwen2.5:3b
 3. Mo `EduChatbot.MVC.sln` bang Visual Studio 2022 va bam `F5`.
 
 Web app se tu khoi dong Python AI service tai `http://127.0.0.1:8000`.
+
+Dashboard:
+
+```text
+http://localhost:5099/Dashboard
+```
